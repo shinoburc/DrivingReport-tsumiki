@@ -1,0 +1,133 @@
+{
+  "name": "運転日報PWA",
+  "short_name": "運転日報",
+  "description": "GPS情報と共に運転記録を管理できるオフライン対応PWA",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "theme_color": "#2563eb",
+  "background_color": "#ffffff",
+  "categories": ["business", "productivity", "utilities"],
+  "lang": "ja",
+  "dir": "ltr",
+  "scope": "/",
+  "icons": [
+    {
+      "src": "/assets/icons/icon-72x72.png",
+      "sizes": "72x72",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "/assets/icons/icon-96x96.png",
+      "sizes": "96x96",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "/assets/icons/icon-128x128.png",
+      "sizes": "128x128",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "/assets/icons/icon-144x144.png",
+      "sizes": "144x144",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "/assets/icons/icon-152x152.png",
+      "sizes": "152x152",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "/assets/icons/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "/assets/icons/icon-384x384.png",
+      "sizes": "384x384",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "/assets/icons/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable any"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/assets/screenshots/mobile-dashboard.png",
+      "sizes": "390x844",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "メイン画面（モバイル）"
+    },
+    {
+      "src": "/assets/screenshots/mobile-recording.png",
+      "sizes": "390x844",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "運転記録画面（モバイル）"
+    },
+    {
+      "src": "/assets/screenshots/tablet-dashboard.png",
+      "sizes": "1024x768",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "メイン画面（タブレット）"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "新規記録開始",
+      "short_name": "新規記録",
+      "description": "新しい運転記録を開始します",
+      "url": "/new-record",
+      "icons": [
+        {
+          "src": "/assets/icons/shortcut-new.png",
+          "sizes": "96x96"
+        }
+      ]
+    },
+    {
+      "name": "履歴確認",
+      "short_name": "履歴",
+      "description": "過去の運転記録を確認します",
+      "url": "/history",
+      "icons": [
+        {
+          "src": "/assets/icons/shortcut-history.png",
+          "sizes": "96x96"
+        }
+      ]
+    },
+    {
+      "name": "データエクスポート",
+      "short_name": "エクスポート",
+      "description": "運転記録をCSV形式でエクスポートします",
+      "url": "/export",
+      "icons": [
+        {
+          "src": "/assets/icons/shortcut-export.png",
+          "sizes": "96x96"
+        }
+      ]
+    }
+  ],
+  "related_applications": [],
+  "prefer_related_applications": false,
+  "edge_side_panel": {
+    "preferred_width": 400
+  },
+  "launch_handler": {
+    "client_mode": "focus-existing"
+  }
+}
