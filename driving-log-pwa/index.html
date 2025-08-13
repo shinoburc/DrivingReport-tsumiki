@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="description" content="GPS情報と共に運転記録を管理できるオフライン対応PWA">
+    <meta name="theme-color" content="#2563eb">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="運転日報">
+    
+    <title>運転日報PWA</title>
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="/manifest.json">
+    
+    <!-- Icons for iOS -->
+    <link rel="apple-touch-icon" href="/assets/icons/icon-192x192.png">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" sizes="32x32" href="/assets/icons/icon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/assets/icons/icon-16x16.png">
+    
+    <!-- Styles -->
+    <link rel="stylesheet" href="/css/main.css">
+    <link rel="stylesheet" href="/css/mobile.css" media="(max-width: 768px)">
+    
+    <!-- Preload critical resources -->
+    <link rel="preload" href="/js/app.js" as="script">
+    <link rel="preload" href="/css/main.css" as="style">
+</head>
+<body>
+    <!-- App Shell -->
+    <div id="app" class="app-container">
+        <!-- Header -->
+        <header class="app-header">
+            <h1 class="app-title">運転日報PWA</h1>
+            <nav class="app-nav" role="navigation">
+                <button class="nav-menu-btn" aria-label="メニューを開く">
+                    <span class="menu-icon"></span>
+                </button>
+            </nav>
+        </header>
+        
+        <!-- Main Content -->
+        <main id="main-content" class="app-main" role="main">
+            <!-- Content will be dynamically loaded here -->
+            <div class="loading-container">
+                <div class="loading-spinner"></div>
+                <p>読み込み中...</p>
+            </div>
+        </main>
+        
+        <!-- Navigation Menu (Hidden by default) -->
+        <nav id="side-menu" class="side-menu" role="navigation" aria-hidden="true">
+            <ul class="menu-list">
+                <li><a href="/" class="menu-item">ホーム</a></li>
+                <li><a href="/new-record" class="menu-item">新規記録</a></li>
+                <li><a href="/history" class="menu-item">履歴</a></li>
+                <li><a href="/export" class="menu-item">エクスポート</a></li>
+                <li><a href="/settings" class="menu-item">設定</a></li>
+            </ul>
+        </nav>
+        
+        <!-- Offline Indicator -->
+        <div id="offline-indicator" class="offline-indicator" hidden>
+            <span>オフラインモード</span>
+        </div>
+    </div>
+    
+    <!-- Service Worker Registration -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js')
+                    .then(registration => {
+                        console.log('ServiceWorker registration successful:', registration.scope);
+                    })
+                    .catch(err => {
+                        console.log('ServiceWorker registration failed:', err);
+                    });
+            });
+        }
+    </script>
+    
+    <!-- App Scripts -->
+    <script src="/js/app.js" type="module"></script>
+</body>
+</html>

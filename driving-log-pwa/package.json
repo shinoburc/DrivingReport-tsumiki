@@ -1,0 +1,55 @@
+{
+  "name": "driving-log-pwa",
+  "version": "1.0.0",
+  "description": "運転日報を簡単に記録・管理できるPWA（Progressive Web App）",
+  "main": "dist/js/app.js",
+  "scripts": {
+    "dev": "npm run build && npm run serve",
+    "build": "npm run clean && npm run typescript && npm run copy-assets",
+    "clean": "rimraf dist",
+    "typescript": "tsc",
+    "copy-assets": "npm run copy-html && npm run copy-css && npm run copy-static",
+    "copy-html": "copyfiles -u 1 \"src/**/*.html\" dist",
+    "copy-css": "copyfiles -u 1 \"src/**/*.css\" dist",
+    "copy-static": "copyfiles -u 1 \"src/assets/**/*\" \"src/manifest.json\" \"src/service-worker.js\" dist",
+    "serve": "http-server dist -p 8080 -c-1",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
+    "lint": "eslint src --ext .ts",
+    "lint:fix": "eslint src --ext .ts --fix",
+    "format": "prettier --write \"src/**/*.{ts,js,html,css,json}\"",
+    "format:check": "prettier --check \"src/**/*.{ts,js,html,css,json}\"",
+    "type-check": "tsc --noEmit"
+  },
+  "keywords": [
+    "PWA",
+    "Progressive Web App",
+    "運転日報",
+    "GPS",
+    "オフライン"
+  ],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/jest": "^29.5.11",
+    "@types/node": "^20.10.5",
+    "@typescript-eslint/eslint-plugin": "^6.15.0",
+    "@typescript-eslint/parser": "^6.15.0",
+    "copyfiles": "^2.4.1",
+    "eslint": "^8.56.0",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-prettier": "^5.1.2",
+    "http-server": "^14.1.1",
+    "jest": "^29.7.0",
+    "jest-environment-jsdom": "^29.7.0",
+    "prettier": "^3.1.1",
+    "rimraf": "^5.0.5",
+    "ts-jest": "^29.1.1",
+    "typescript": "^5.3.3"
+  },
+  "dependencies": {},
+  "engines": {
+    "node": ">=16.0.0"
+  }
+}

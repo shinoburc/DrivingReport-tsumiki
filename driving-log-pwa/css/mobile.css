@@ -1,0 +1,145 @@
+/* Mobile Specific Styles */
+@media (max-width: 768px) {
+  /* Ensure touch targets are at least 44x44px */
+  button,
+  a,
+  input,
+  select,
+  textarea {
+    min-height: 44px;
+    min-width: 44px;
+  }
+  
+  /* App Header Mobile */
+  .app-header {
+    padding: var(--spacing-sm) var(--spacing-md);
+  }
+  
+  .app-title {
+    font-size: var(--font-size-lg);
+  }
+  
+  /* Main Content Mobile */
+  .app-main {
+    padding: var(--spacing-sm);
+  }
+  
+  /* Responsive Typography */
+  body {
+    font-size: var(--font-size-base);
+  }
+  
+  h1 {
+    font-size: var(--font-size-xl);
+  }
+  
+  h2 {
+    font-size: var(--font-size-lg);
+  }
+  
+  /* Touch-friendly spacing */
+  .button,
+  .form-control {
+    padding: var(--spacing-md);
+    margin-bottom: var(--spacing-md);
+  }
+  
+  /* Prevent horizontal scroll */
+  body {
+    overflow-x: hidden;
+  }
+  
+  /* Full-width containers on mobile */
+  .container {
+    width: 100%;
+    padding: 0 var(--spacing-sm);
+  }
+  
+  /* Stack elements vertically on mobile */
+  .flex-row {
+    flex-direction: column;
+  }
+  
+  /* Mobile-optimized cards */
+  .card {
+    border-radius: 8px;
+    padding: var(--spacing-md);
+    margin-bottom: var(--spacing-md);
+  }
+  
+  /* Mobile navigation */
+  .side-menu {
+    width: 85%;
+    max-width: 300px;
+    left: -100%;
+  }
+  
+  .side-menu.active {
+    left: 0;
+  }
+  
+  /* Overlay for side menu */
+  .menu-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 150;
+    display: none;
+  }
+  
+  .menu-overlay.active {
+    display: block;
+  }
+}
+
+/* Small mobile devices */
+@media (max-width: 375px) {
+  :root {
+    --font-size-base: 0.875rem;
+    --font-size-sm: 0.75rem;
+  }
+  
+  .app-title {
+    font-size: var(--font-size-base);
+  }
+}
+
+/* Landscape orientation */
+@media (max-width: 768px) and (orientation: landscape) {
+  .app-header {
+    padding: var(--spacing-xs) var(--spacing-md);
+  }
+  
+  .app-main {
+    padding: var(--spacing-xs);
+  }
+}
+
+/* iOS specific fixes */
+@supports (-webkit-touch-callout: none) {
+  /* Fix for iOS Safari bottom bar */
+  .app-container {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  
+  /* Fix for iOS Safari notch */
+  .app-header {
+    padding-top: calc(var(--spacing-md) + env(safe-area-inset-top));
+  }
+  
+  /* Prevent bounce scrolling */
+  body {
+    position: fixed;
+    overflow: hidden;
+    width: 100%;
+    height: 100%;
+  }
+  
+  .app-container {
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+}
