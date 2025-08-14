@@ -2,6 +2,25 @@ import { DrivingLog, Location, AppSettings, DrivingLogStatus, LocationType, Expo
 import { ValidationResult } from '../base/BaseModel';
 import { AppError, ErrorCode } from '../../types';
 
+interface ValidationError {
+  field: string;
+  message: string;
+}
+
+// エラーメッセージ定数
+const ERROR_MESSAGES = {
+  FIELD_REQUIRED: (field: string) => `${field} is required`,
+  INVALID_DATE: 'Invalid date format',
+  INVALID_COORDINATES: 'Invalid coordinate values',
+  INVALID_TIMESTAMP: 'Invalid timestamp format',
+  INVALID_TYPE: (field: string, validValues: string[]) => 
+    `Invalid ${field} value. Valid values are: ${validValues.join(', ')}`,
+  INVALID_RANGE: (field: string, min: number, max: number) => 
+    `${field} must be between ${min} and ${max}`,
+  MUST_BE_ARRAY: (field: string) => `${field} must be an array`,
+  MUST_BE_POSITIVE: (field: string) => `${field} must be a positive number`
+} as const;
+
 /**
  * モデルバリデーター
  * データ検証とエラー処理の統一管理
@@ -10,27 +29,35 @@ export class ModelValidator {
   /**
    * DrivingLogのバリデーション
    */
-  static validateDrivingLog(data: any): ValidationResult {
-    const errors: any[] = [];
+  static validateDrivingLog(data: Partial<DrivingLog>): ValidationResult {
+    const errors: ValidationError[] = [];
 
-    // 必須フィールド検証
-    if (!data.date) {
-      errors.push({ field: 'date', message: 'Date is required' });
-    } else if (!this.validateDate(data.date)) {
-      errors.push({ field: 'date', message: 'Invalid date format' });
+    // 必須フィールド検証  
+    if (data.date === null || data.date === undefined) {
+      errors.push({ field: 'date', message: ERROR_MESSAGES.FIELD_REQUIRED('Date') });
+    } else if (typeof data.date === 'string' || typeof data.date === 'number') {
+      errors.push({ field: 'date', message: ERROR_MESSAGES.INVALID_DATE });
+    } else if (data.date && !this.validateDate(data.date)) {
+      errors.push({ field: 'date', message: ERROR_MESSAGES.INVALID_DATE });
     }
 
     if (!data.startLocation) {
-      errors.push({ field: 'startLocation', message: 'Start location is required' });
+      errors.push({ field: 'startLocation', message: ERROR_MESSAGES.FIELD_REQUIRED('Start location') });
     }
 
-    if (!Array.isArray(data.waypoints)) {
-      errors.push({ field: 'waypoints', message: 'Waypoints must be an array' });
+    if (!data.waypoints) {
+      errors.push({ field: 'waypoints', message: ERROR_MESSAGES.FIELD_REQUIRED('Waypoints') });
+    } else if (!Array.isArray(data.waypoints)) {
+      errors.push({ field: 'waypoints', message: ERROR_MESSAGES.MUST_BE_ARRAY('Waypoints') });
     }
 
     // ステータス検証
-    if (data.status && !Object.values(DrivingLogStatus).includes(data.status)) {
-      errors.push({ field: 'status', message: 'Invalid status value' });
+    if (data.status !== undefined && (
+      data.status === null || 
+      !Object.values(DrivingLogStatus).includes(data.status as DrivingLogStatus)
+    )) {
+      const validStatuses = Object.values(DrivingLogStatus) as string[];
+      errors.push({ field: 'status', message: ERROR_MESSAGES.INVALID_TYPE('status', validStatuses) });
     }
 
     return {
@@ -42,8 +69,8 @@ export class ModelValidator {
   /**
    * Locationのバリデーション
    */
-  static validateLocation(data: any): ValidationResult {
-    const errors: any[] = [];
+  static validateLocation(data: Partial<Location>): ValidationResult {
+    const errors: ValidationError[] = [];
 
     // 座標検証
     if (data.latitude !== undefined || data.longitude !== undefined) {
@@ -77,8 +104,8 @@ export class ModelValidator {
   /**
    * AppSettingsのバリデーション
    */
-  static validateSettings(data: any): ValidationResult {
-    const errors: any[] = [];
+  static validateSettings(data: Partial<AppSettings>): ValidationResult {
+    const errors: ValidationError[] = [];
 
     // 言語検証
     if (data.language && !['ja', 'en'].includes(data.language)) {

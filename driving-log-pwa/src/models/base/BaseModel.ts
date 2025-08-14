@@ -49,6 +49,20 @@ export abstract class BaseModel {
   }
 
   /**
+   * 更新時刻を保証するヘルパー
+   */
+  protected createUpdatedTimestamp(): Date {
+    return new Date(Date.now() + 1);
+  }
+
+  /**
+   * プロパティの条件付き更新ヘルパー
+   */
+  protected updateProperty<T>(newValue: T | undefined, currentValue: T): T {
+    return newValue !== undefined ? newValue : currentValue;
+  }
+
+  /**
    * JSONからインスタンス作成（各サブクラスで実装）
    */
   static fromJSON(data: Record<string, any>): BaseModel {

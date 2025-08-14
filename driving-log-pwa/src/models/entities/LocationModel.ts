@@ -4,6 +4,13 @@ import { ModelValidator } from '../validators/ModelValidator';
 import { ModelFactory } from '../factories/ModelFactory';
 import { AppError, ErrorCode } from '../../types';
 
+// 地理計算定数
+const GEO_CONSTANTS = {
+  EARTH_RADIUS_KM: 6371,
+  PRECISION_DIGITS: 3,
+  DEGREES_TO_RADIANS: Math.PI / 180
+} as const;
+
 /**
  * 位置情報モデル
  * GPS座標と地点情報の管理
@@ -74,15 +81,15 @@ export class LocationModel extends BaseModel implements Location {
   update(updates: Partial<Omit<Location, 'id'>>): LocationModel {
     const updatedData: Location = {
       id: this.id,
-      name: updates.name !== undefined ? updates.name : this.name,
-      address: updates.address !== undefined ? updates.address : this.address,
-      latitude: updates.latitude !== undefined ? updates.latitude : this.latitude,
-      longitude: updates.longitude !== undefined ? updates.longitude : this.longitude,
-      accuracy: updates.accuracy !== undefined ? updates.accuracy : this.accuracy,
-      timestamp: updates.timestamp !== undefined ? updates.timestamp : this.timestamp,
-      type: updates.type !== undefined ? updates.type : this.type,
-      note: updates.note !== undefined ? updates.note : this.note,
-      imageDataUrl: updates.imageDataUrl !== undefined ? updates.imageDataUrl : this.imageDataUrl
+      name: this.updateProperty(updates.name, this.name),
+      address: this.updateProperty(updates.address, this.address),
+      latitude: this.updateProperty(updates.latitude, this.latitude),
+      longitude: this.updateProperty(updates.longitude, this.longitude),
+      accuracy: this.updateProperty(updates.accuracy, this.accuracy),
+      timestamp: this.updateProperty(updates.timestamp, this.timestamp),
+      type: this.updateProperty(updates.type, this.type),
+      note: this.updateProperty(updates.note, this.note),
+      imageDataUrl: this.updateProperty(updates.imageDataUrl, this.imageDataUrl)
     };
 
     return LocationModel.create(updatedData);
@@ -110,7 +117,7 @@ export class LocationModel extends BaseModel implements Location {
       return 0;
     }
 
-    const R = 6371; // 地球の半径（km）
+    const R = GEO_CONSTANTS.EARTH_RADIUS_KM;
     const dLat = this.toRadians(lat2 - lat1);
     const dLon = this.toRadians(lon2 - lon1);
     
@@ -122,7 +129,8 @@ export class LocationModel extends BaseModel implements Location {
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
     const distance = R * c;
 
-    return Math.round(distance * 1000) / 1000; // 小数点3桁で四捨五入
+    const multiplier = Math.pow(10, GEO_CONSTANTS.PRECISION_DIGITS);
+    return Math.round(distance * multiplier) / multiplier;
   }
 
   /**
@@ -136,7 +144,7 @@ export class LocationModel extends BaseModel implements Location {
    * 度をラジアンに変換
    */
   private toRadians(degrees: number): number {
-    return degrees * (Math.PI / 180);
+    return degrees * GEO_CONSTANTS.DEGREES_TO_RADIANS;
   }
 
   validate(): ValidationResult {

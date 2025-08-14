@@ -49,20 +49,57 @@ export class ModelFactory {
    * SettingsModelインスタンス作成
    */
   static createSettings(data?: Partial<AppSettings>): SettingsModel {
-    throw new AppError(ErrorCode.UNKNOWN_ERROR, 'Not implemented yet');
+    if (data) {
+      return SettingsModel.create(data);
+    } else {
+      return SettingsModel.createDefault();
+    }
   }
 
   /**
    * DrivingLogModel複製
    */
   static cloneDrivingLog(original: DrivingLogModel): DrivingLogModel {
-    throw new AppError(ErrorCode.UNKNOWN_ERROR, 'Not implemented yet');
+    if (!original) {
+      throw new AppError(ErrorCode.INVALID_DATA_FORMAT, 'Original DrivingLog is required for cloning');
+    }
+
+    const clonedData = {
+      date: original.date,
+      driverName: original.driverName,
+      vehicleNumber: original.vehicleNumber,
+      startLocation: original.startLocation,
+      waypoints: [...original.waypoints],
+      endLocation: original.endLocation,
+      totalDistance: original.totalDistance,
+      status: original.status,
+      createdAt: original.createdAt,
+      updatedAt: original.updatedAt
+    };
+
+    return DrivingLogModel.create(clonedData);
   }
 
   /**
    * LocationModel複製
    */
   static cloneLocation(original: LocationModel): LocationModel {
-    throw new AppError(ErrorCode.UNKNOWN_ERROR, 'Not implemented yet');
+    if (!original) {
+      throw new AppError(ErrorCode.INVALID_DATA_FORMAT, 'Original Location is required for cloning');
+    }
+
+    const clonedData = {
+      name: original.name,
+      address: original.address,
+      latitude: original.latitude,
+      longitude: original.longitude,
+      accuracy: original.accuracy,
+      timestamp: original.timestamp,
+      type: original.type,
+      note: original.note,
+      imageDataUrl: original.imageDataUrl
+    };
+
+    return LocationModel.create(clonedData);
   }
 }

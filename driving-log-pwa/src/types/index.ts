@@ -77,7 +77,8 @@ export enum DrivingLogStatus {
 export enum LocationType {
   START = 'START',               // 出発地点
   WAYPOINT = 'WAYPOINT',         // 経由地点
-  END = 'END'                    // 到着地点
+  END = 'END',                   // 到着地点
+  GPS = 'GPS'                    // GPS取得地点
 }
 
 /**
@@ -243,10 +244,56 @@ export enum ErrorCode {
   GPS_PERMISSION_DENIED = 'GPS_PERMISSION_DENIED',
   GPS_TIMEOUT = 'GPS_TIMEOUT',
   GPS_UNAVAILABLE = 'GPS_UNAVAILABLE',
+  GPS_LOW_ACCURACY = 'GPS_LOW_ACCURACY',
   STORAGE_QUOTA_EXCEEDED = 'STORAGE_QUOTA_EXCEEDED',
   STORAGE_UNAVAILABLE = 'STORAGE_UNAVAILABLE',
   INVALID_DATA_FORMAT = 'INVALID_DATA_FORMAT',
   EXPORT_FAILED = 'EXPORT_FAILED',
   NETWORK_ERROR = 'NETWORK_ERROR',
   UNKNOWN_ERROR = 'UNKNOWN_ERROR'
+}
+
+// ========================================
+// GPS サービス関連型定義
+// ========================================
+
+/**
+ * GPS サービスオプション
+ */
+export interface GPSOptions {
+  timeout: number;
+  enableHighAccuracy: boolean;
+  maximumAge: number;
+  retryCount: number;
+}
+
+/**
+ * 精度レベル
+ */
+export enum AccuracyLevel {
+  HIGH = 'high',
+  MEDIUM = 'medium',
+  LOW = 'low'
+}
+
+/**
+ * 権限状態
+ */
+export enum PermissionState {
+  GRANTED = 'granted',
+  DENIED = 'denied',
+  PROMPT = 'prompt'
+}
+
+/**
+ * GPS サービスインターフェース
+ */
+export interface IGPSService {
+  getCurrentPosition(options?: Partial<GPSOptions>): Promise<any>; // LocationModel import避けるためanyにしておく
+  checkPermission(): Promise<PermissionState>;
+  requestPermission(): Promise<PermissionState>;
+  updateOptions(options: Partial<GPSOptions>): void;
+  getOptions(): GPSOptions;
+  checkAccuracy(location: any): AccuracyLevel; // LocationModel import避けるためanyにしておく
+  cleanup(): void;
 }
