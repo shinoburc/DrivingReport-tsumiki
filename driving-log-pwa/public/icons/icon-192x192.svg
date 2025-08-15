@@ -1,0 +1,20 @@
+
+<svg width="192" height="192" viewBox="0 0 192 192" xmlns="http://www.w3.org/2000/svg">
+  <!-- 背景円 -->
+  <circle cx="96" cy="96" r="86.4" fill="#2196F3"/>
+  
+  <!-- 車のシルエット -->
+  <g transform="translate(57.599999999999994,67.19999999999999)">
+    <rect x="0" y="8" width="32" height="12" rx="2" fill="#FFFFFF"/>
+    <rect x="4" y="4" width="24" height="8" rx="2" fill="#FFFFFF"/>
+    <!-- タイヤ -->
+    <circle cx="8" cy="22" r="3" fill="#FFFFFF"/>
+    <circle cx="24" cy="22" r="3" fill="#FFFFFF"/>
+  </g>
+  
+  <!-- 日報のライン -->
+  <g stroke="#FFFFFF" stroke-width="3.84" stroke-linecap="round">
+    <line x1="67.19999999999999" y1="48" x2="124.80000000000001" y2="48"/>
+    <line x1="76.80000000000001" y1="144" x2="115.19999999999999" y2="144"/>
+  </g>
+</svg>

@@ -1,0 +1,15 @@
+<svg width="96" height="96" viewBox="0 0 96 96" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background Circle -->
+  <circle cx="48" cy="48" r="43.2" fill="#FFF3E0"/>
+  
+  <!-- Icon Path -->
+  
+                <g transform="translate(38.4, 36.480000000000004)">
+                    <rect x="0" y="3.84" width="19.200000000000003" height="15.36" rx="0.96" fill="none" stroke="#FF9800" stroke-width="1.44"/>
+                    <path d="M 9.600000000000001 3.84 L 9.600000000000001 -1.92 M 5.76 1.92 L 9.600000000000001 -1.92 L 13.440000000000001 1.92" 
+                          fill="none" stroke="#FF9800" stroke-width="1.44" stroke-linecap="round" stroke-linejoin="round"/>
+                </g>
+  
+  <!-- Border -->
+  <circle cx="48" cy="48" r="43.2" fill="none" stroke="#FF9800" stroke-width="1.92" opacity="0.6"/>
+</svg>

@@ -1,0 +1,199 @@
+/* HistoryCard Component Styles */
+.history-card {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  padding: 16px;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  border: 1px solid transparent;
+}
+
+.history-card:hover {
+  box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+  transform: translateY(-1px);
+}
+
+.history-card:focus {
+  outline: 2px solid #2196F3;
+  outline-offset: 2px;
+  border-color: #2196F3;
+}
+
+/* Card Header */
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #F0F0F0;
+}
+
+.card-date {
+  font-size: 16px;
+  font-weight: 600;
+  color: #212121;
+}
+
+.card-status {
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.status-completed {
+  background: #E8F5E8;
+  color: #2E7D32;
+}
+
+.status-in-progress {
+  background: #FFF3E0;
+  color: #F57C00;
+}
+
+.status-cancelled {
+  background: #FFEBEE;
+  color: #C62828;
+}
+
+.status-unknown {
+  background: #F5F5F5;
+  color: #757575;
+}
+
+/* Card Content */
+.card-content {
+  margin-bottom: 12px;
+}
+
+.route-info {
+  display: flex;
+  align-items: center;
+  margin-bottom: 8px;
+  font-size: 14px;
+  color: #424242;
+}
+
+.start-location,
+.end-location {
+  font-weight: 500;
+  flex-shrink: 0;
+  max-width: 120px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.route-arrow {
+  margin: 0 8px;
+  color: #757575;
+  flex-shrink: 0;
+}
+
+.trip-stats {
+  display: flex;
+  gap: 16px;
+}
+
+.stat-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 13px;
+}
+
+.stat-label {
+  color: #757575;
+}
+
+.stat-value {
+  font-weight: 500;
+  color: #212121;
+}
+
+/* Card Actions */
+.card-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid #F0F0F0;
+}
+
+.action-button {
+  padding: 6px 12px;
+  border: none;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  min-height: 32px;
+  min-width: 48px;
+}
+
+.edit-button {
+  background: #E3F2FD;
+  color: #1976D2;
+}
+
+.edit-button:hover {
+  background: #BBDEFB;
+}
+
+.delete-button {
+  background: #FFEBEE;
+  color: #D32F2F;
+}
+
+.delete-button:hover {
+  background: #FFCDD2;
+}
+
+.action-button:focus {
+  outline: 2px solid currentColor;
+  outline-offset: 1px;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .history-card {
+    padding: 12px;
+  }
+  
+  .route-info {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
+  
+  .start-location,
+  .end-location {
+    max-width: none;
+  }
+  
+  .route-arrow {
+    margin: 0;
+  }
+  
+  .trip-stats {
+    flex-direction: column;
+    gap: 8px;
+  }
+}
+
+/* Accessibility */
+@media (prefers-reduced-motion: reduce) {
+  .history-card {
+    transition: none;
+  }
+  
+  .history-card:hover {
+    transform: none;
+  }
+}

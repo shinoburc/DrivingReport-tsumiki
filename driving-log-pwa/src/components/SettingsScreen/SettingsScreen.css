@@ -1,0 +1,357 @@
+/* SettingsScreen Component Styles */
+.settings-screen {
+  min-height: 100vh;
+  background: #FAFAFA;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Loading State */
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 50vh;
+  gap: 16px;
+}
+
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid #E0E0E0;
+  border-top: 4px solid #2196F3;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Error State */
+.error-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 50vh;
+  gap: 16px;
+  text-align: center;
+  padding: 24px;
+}
+
+.retry-button {
+  background: #F44336;
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 8px;
+  cursor: pointer;
+  min-height: 44px;
+}
+
+/* Header */
+.settings-header {
+  background: white;
+  border-bottom: 1px solid #E0E0E0;
+  padding: 16px 24px;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.breadcrumb {
+  margin-bottom: 12px;
+}
+
+.breadcrumb ol {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  gap: 8px;
+  font-size: 14px;
+  color: #757575;
+}
+
+.breadcrumb li:not(:last-child)::after {
+  content: '>';
+  margin-left: 8px;
+  color: #BDBDBD;
+}
+
+.breadcrumb a {
+  color: #2196F3;
+  text-decoration: none;
+}
+
+.header-content {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.back-button {
+  background: transparent;
+  border: 1px solid #E0E0E0;
+  border-radius: 8px;
+  padding: 8px 12px;
+  cursor: pointer;
+  min-height: 44px;
+  min-width: 44px;
+}
+
+.settings-header h1 {
+  margin: 0;
+  font-size: 28px;
+  font-weight: 700;
+  color: #212121;
+  flex: 1;
+}
+
+.app-version {
+  font-size: 14px;
+  color: #757575;
+  background: #F5F5F5;
+  padding: 4px 8px;
+  border-radius: 4px;
+}
+
+/* Navigation */
+.settings-navigation {
+  background: white;
+  border-bottom: 1px solid #E0E0E0;
+  padding: 0 24px;
+  overflow-x: auto;
+}
+
+.tab-list {
+  display: flex;
+  gap: 0;
+  min-width: min-content;
+}
+
+.tab-button {
+  background: transparent;
+  border: none;
+  border-bottom: 3px solid transparent;
+  padding: 16px 20px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  min-width: 80px;
+  white-space: nowrap;
+  transition: all 0.2s ease;
+}
+
+.tab-button:hover {
+  background: #F5F5F5;
+}
+
+.tab-button.active {
+  border-bottom-color: #2196F3;
+  color: #2196F3;
+}
+
+.tab-icon {
+  font-size: 20px;
+}
+
+.tab-label {
+  font-size: 12px;
+  font-weight: 500;
+}
+
+/* Content */
+.settings-content {
+  flex: 1;
+  position: relative;
+}
+
+.settings-panel {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 24px;
+  overflow-y: auto;
+  background: #FAFAFA;
+}
+
+.settings-panel.hidden {
+  display: none;
+}
+
+.settings-panel.active {
+  display: block;
+}
+
+/* Common Setting Styles */
+.setting-group {
+  background: white;
+  border-radius: 8px;
+  padding: 24px;
+  margin-bottom: 16px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.setting-group h2 {
+  margin: 0 0 24px 0;
+  font-size: 24px;
+  font-weight: 600;
+  color: #212121;
+}
+
+.setting-group h3 {
+  margin: 0 0 16px 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: #424242;
+}
+
+.setting-group legend {
+  font-size: 16px;
+  font-weight: 600;
+  color: #424242;
+  padding: 0 8px;
+}
+
+.setting-item {
+  margin-bottom: 16px;
+}
+
+.setting-item label {
+  display: block;
+  font-size: 14px;
+  font-weight: 500;
+  color: #424242;
+  margin-bottom: 8px;
+}
+
+.setting-item input,
+.setting-item select {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #D0D0D0;
+  border-radius: 6px;
+  font-size: 14px;
+  background: white;
+}
+
+.setting-item input:focus,
+.setting-item select:focus {
+  outline: none;
+  border-color: #2196F3;
+  box-shadow: 0 0 0 2px rgba(33, 150, 243, 0.2);
+}
+
+.setting-item small {
+  display: block;
+  font-size: 12px;
+  color: #757575;
+  margin-top: 4px;
+}
+
+/* Error Notification */
+.error-notification {
+  position: fixed;
+  top: 80px;
+  right: 24px;
+  background: #F44336;
+  color: white;
+  padding: 12px 16px;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+  z-index: 1000;
+  max-width: 300px;
+}
+
+/* Screen Reader Only */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Responsive Design */
+.settings-screen.mobile-layout {
+  font-size: 14px;
+}
+
+.settings-screen.mobile-layout .settings-header {
+  padding: 12px 16px;
+}
+
+.settings-screen.mobile-layout .settings-navigation {
+  padding: 0 16px;
+}
+
+.settings-screen.mobile-layout .tab-button {
+  padding: 12px 16px;
+  min-width: 60px;
+}
+
+.settings-screen.mobile-layout .tab-label {
+  font-size: 11px;
+}
+
+.settings-screen.mobile-layout .settings-panel {
+  padding: 16px;
+}
+
+.settings-screen.mobile-layout .setting-group {
+  padding: 16px;
+}
+
+.settings-screen.tablet-layout .settings-content {
+  display: grid;
+  grid-template-columns: 250px 1fr;
+}
+
+.settings-screen.tablet-layout .settings-navigation {
+  writing-mode: vertical-lr;
+  border-bottom: none;
+  border-right: 1px solid #E0E0E0;
+}
+
+.settings-screen.desktop-layout .settings-content {
+  display: grid;
+  grid-template-columns: 300px 1fr;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* Focus Management */
+.settings-screen button:focus,
+.settings-screen input:focus,
+.settings-screen select:focus {
+  outline: 2px solid #2196F3;
+  outline-offset: 2px;
+}
+
+/* High Contrast Mode */
+@media (prefers-contrast: high) {
+  .settings-screen {
+    background: white;
+  }
+  
+  .setting-group {
+    border: 2px solid #000;
+  }
+  
+  .tab-button.active {
+    background: #000;
+    color: white;
+  }
+}

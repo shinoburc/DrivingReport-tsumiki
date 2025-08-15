@@ -1,0 +1,27 @@
+
+<svg width="512" height="512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+  <!-- 全面背景（マスク対応） -->
+  <rect width="512" height="512" fill="#2196F3"/>
+  
+  <!-- 安全領域内のコンテンツ -->
+  <g transform="translate(51.2,51.2)">
+    <!-- 車のシルエット（より大きく） -->
+    <g transform="translate(128,128)">
+      <rect x="0" y="16" width="64" height="24" rx="4" fill="#FFFFFF"/>
+      <rect x="8" y="8" width="48" height="16" rx="4" fill="#FFFFFF"/>
+      <!-- タイヤ -->
+      <circle cx="16" cy="44" r="6" fill="#FFFFFF"/>
+      <circle cx="48" cy="44" r="6" fill="#FFFFFF"/>
+    </g>
+    
+    <!-- 装飾的な要素 -->
+    <circle cx="204.8" cy="204.8" r="153.6" stroke="#FFFFFF" stroke-width="5.12" fill="none"/>
+    
+    <!-- 日報ラインズ -->
+    <g stroke="#FFFFFF" stroke-width="4.096" stroke-linecap="round">
+      <line x1="102.4" y1="76.8" x2="307.2" y2="76.8"/>
+      <line x1="128" y1="332.8" x2="281.6" y2="332.8"/>
+      <line x1="128" y1="358.4" x2="281.6" y2="358.4"/>
+    </g>
+  </g>
+</svg>

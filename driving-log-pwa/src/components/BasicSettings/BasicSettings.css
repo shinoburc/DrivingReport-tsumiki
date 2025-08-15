@@ -1,0 +1,263 @@
+/* BasicSettings Component Styles */
+.basic-settings {
+  max-width: 800px;
+}
+
+.basic-settings.theme-transitioning {
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Theme Options */
+.theme-options {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 12px;
+}
+
+.theme-option {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 16px;
+  border: 2px solid #E0E0E0;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background: white;
+}
+
+.theme-option:hover {
+  border-color: #2196F3;
+  background: #F5F5F5;
+}
+
+.theme-option input[type="radio"]:checked + * + * {
+  color: #2196F3;
+}
+
+.theme-option input[type="radio"] {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.theme-option input[type="radio"]:checked ~ .theme-icon {
+  transform: scale(1.2);
+}
+
+.theme-option:has(input[type="radio"]:checked) {
+  border-color: #2196F3;
+  background: #E3F2FD;
+}
+
+.theme-icon {
+  font-size: 24px;
+  margin-bottom: 8px;
+  transition: transform 0.2s ease;
+}
+
+.theme-info {
+  margin-top: 8px;
+  font-style: italic;
+  color: #4CAF50;
+}
+
+/* GPS Status */
+.gps-status {
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-weight: 500;
+  margin-bottom: 16px;
+  background: #F5F5F5;
+}
+
+/* Slider Controls */
+.slider-container {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.slider-container input[type="range"] {
+  flex: 1;
+  height: 6px;
+  background: #E0E0E0;
+  border-radius: 3px;
+  outline: none;
+  appearance: none;
+}
+
+.slider-container input[type="range"]::-webkit-slider-thumb {
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  background: #2196F3;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+.slider-container input[type="range"]::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  background: #2196F3;
+  border-radius: 50%;
+  cursor: pointer;
+  border: none;
+}
+
+.slider-value {
+  min-width: 60px;
+  text-align: center;
+  font-weight: 500;
+  color: #2196F3;
+  background: #E3F2FD;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 13px;
+}
+
+/* Checkbox Labels */
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  padding: 8px 0;
+}
+
+.checkbox-label input[type="checkbox"] {
+  width: auto;
+  margin: 0;
+}
+
+/* Reset Button */
+.reset-button {
+  background: #F44336;
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 500;
+  min-height: 44px;
+}
+
+.reset-button:hover {
+  background: #D32F2F;
+}
+
+/* Modal Styles */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background: white;
+  padding: 24px;
+  border-radius: 12px;
+  max-width: 400px;
+  width: 90%;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+}
+
+.modal-content h3 {
+  margin: 0 0 16px 0;
+  color: #212121;
+}
+
+.modal-content p {
+  margin: 8px 0;
+  color: #424242;
+}
+
+.modal-content .warning {
+  color: #F44336;
+  font-weight: 500;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+  margin-top: 24px;
+}
+
+.cancel-button {
+  background: #757575;
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 8px;
+  cursor: pointer;
+  min-height: 44px;
+}
+
+.confirm-button {
+  background: #F44336;
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 8px;
+  cursor: pointer;
+  min-height: 44px;
+}
+
+/* Feedback Messages */
+.feedback-message {
+  position: fixed;
+  top: 100px;
+  right: 24px;
+  background: #4CAF50;
+  color: white;
+  padding: 12px 16px;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  z-index: 1000;
+  animation: slideIn 0.3s ease;
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+  .theme-options {
+    grid-template-columns: 1fr;
+  }
+  
+  .slider-container {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+  }
+  
+  .slider-value {
+    text-align: center;
+  }
+  
+  .modal-content {
+    margin: 16px;
+    width: calc(100% - 32px);
+  }
+  
+  .modal-actions {
+    flex-direction: column;
+  }
+}

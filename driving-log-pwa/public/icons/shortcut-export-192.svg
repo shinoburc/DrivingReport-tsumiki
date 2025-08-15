@@ -1,0 +1,14 @@
+<svg width="192" height="192" viewBox="0 0 192 192" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background Circle -->
+  <circle cx="96" cy="96" r="86.4" fill="#FFF3E0" stroke="#FF9800" stroke-width="3.84"/>
+  
+  <!-- Emoji Icon -->
+  <text x="96" y="96" 
+        font-family="Apple Color Emoji, Segoe UI Emoji, Noto Color Emoji, sans-serif" 
+        font-size="96" 
+        text-anchor="middle" 
+        dominant-baseline="central">📤</text>
+  
+  <!-- Optional Border -->
+  <circle cx="96" cy="96" r="86.4" fill="none" stroke="#FF9800" stroke-width="1.92" opacity="0.3"/>
+</svg>

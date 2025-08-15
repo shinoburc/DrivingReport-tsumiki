@@ -9,10 +9,11 @@ module.exports = {
   ],
   transform: {
     '^.+\\.(ts|tsx)$': ['ts-jest', {
-      isolatedModules: true,
       tsconfig: {
+        jsx: 'react-jsx',
         skipLibCheck: true,
-        strict: false
+        strict: false,
+        isolatedModules: true
       }
     }],
   },
@@ -20,18 +21,30 @@ module.exports = {
     'src/**/*.{ts,tsx}',
     '!src/**/*.d.ts',
     '!src/types/**',
+    '!src/components/**/*.css',
+    '!src/assets/**',
+    '!src/css/**',
   ],
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/src/$1',
+    '\\.(css|less|scss|sass)$': 'identity-obj-proxy',
   },
   setupFilesAfterEnv: ['<rootDir>/tests/setup.ts'],
-  testPathIgnorePatterns: ['/node_modules/', '/dist/'],
+  testPathIgnorePatterns: ['/node_modules/', '/dist/', '/coverage/'],
+  testEnvironmentOptions: {
+    url: 'http://localhost:3000'
+  },
   coverageThreshold: {
     global: {
-      branches: 80,
-      functions: 80,
-      lines: 80,
-      statements: 80,
+      branches: 85,
+      functions: 85,
+      lines: 85,
+      statements: 85,
     },
   },
+  coverageDirectory: 'coverage',
+  coverageReporters: ['text', 'lcov', 'html'],
+  maxWorkers: '50%',
+  testTimeout: 10000,
+  verbose: true,
 };

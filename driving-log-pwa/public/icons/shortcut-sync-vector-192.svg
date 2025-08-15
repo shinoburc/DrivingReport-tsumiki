@@ -1,0 +1,22 @@
+<svg width="192" height="192" viewBox="0 0 192 192" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background Circle -->
+  <circle cx="96" cy="96" r="86.4" fill="#F3E5F5"/>
+  
+  <!-- Icon Path -->
+  
+                <g transform="translate(96, 96)">
+                    <path d="M -15.36 -7.68 C -15.36 -15.36 -7.68 -23.04 0 -23.04
+                             C 7.68 -23.04 15.36 -15.36 15.36 -7.68"
+                          fill="none" stroke="#9C27B0" stroke-width="2.88" stroke-linecap="round"/>
+                    <path d="M 15.36 7.68 C 15.36 15.36 7.68 23.04 0 23.04
+                             C -7.68 23.04 -15.36 15.36 -15.36 7.68"
+                          fill="none" stroke="#9C27B0" stroke-width="2.88" stroke-linecap="round"/>
+                    <path d="M 9.600000000000001 -11.52 L 15.36 -7.68 L 11.52 -1.92"
+                          fill="none" stroke="#9C27B0" stroke-width="1.92" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M -9.600000000000001 11.52 L -15.36 7.68 L -11.52 1.92"
+                          fill="none" stroke="#9C27B0" stroke-width="1.92" stroke-linecap="round" stroke-linejoin="round"/>
+                </g>
+  
+  <!-- Border -->
+  <circle cx="96" cy="96" r="86.4" fill="none" stroke="#9C27B0" stroke-width="3.84" opacity="0.6"/>
+</svg>

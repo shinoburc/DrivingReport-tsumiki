@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="運転記録を簡単に管理できるPWAアプリケーション">
+    <meta name="theme-color" content="#2196F3">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="運転日報">
+    
+    <title>運転日報PWA</title>
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="/manifest.json">
+    
+    <!-- Icons -->
+    <link rel="icon" href="/icons/favicon.svg" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="/icons/apple-touch-icon.svg">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: white;
+        }
+        
+        .container {
+            text-align: center;
+            max-width: 400px;
+            padding: 2rem;
+            background: rgba(255,255,255,0.1);
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+        }
+        
+        .app-icon {
+            width: 120px;
+            height: 120px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 60px;
+            margin: 0 auto 30px;
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            font-weight: bold;
+        }
+        
+        p {
+            font-size: 1.1rem;
+            margin-bottom: 2rem;
+            opacity: 0.9;
+            line-height: 1.5;
+        }
+        
+        .buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .btn {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: 2px solid rgba(255,255,255,0.3);
+            padding: 15px 30px;
+            border-radius: 12px;
+            text-decoration: none;
+            font-size: 16px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .btn:hover {
+            background: rgba(255,255,255,0.3);
+            transform: translateY(-2px);
+        }
+        
+        .btn-primary {
+            background: #2196F3;
+            border-color: #2196F3;
+        }
+        
+        .btn-primary:hover {
+            background: #1976D2;
+            border-color: #1976D2;
+        }
+        
+        .features {
+            margin-top: 3rem;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            text-align: left;
+        }
+        
+        .feature {
+            background: rgba(255,255,255,0.1);
+            padding: 1rem;
+            border-radius: 12px;
+            font-size: 14px;
+        }
+        
+        .feature-icon {
+            font-size: 24px;
+            margin-bottom: 8px;
+        }
+        
+        @media (max-width: 480px) {
+            .container {
+                margin: 20px;
+                padding: 1.5rem;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .features {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="app-icon">🚗</div>
+        <h1>運転日報PWA</h1>
+        <p>運転記録を簡単に管理できるPWAアプリケーション。オフライン対応で、いつでもどこでも運転記録を作成・閲覧できます。</p>
+        
+        <div class="buttons">
+            <button class="btn btn-primary" onclick="startNewLog()">新規運転記録を開始</button>
+            <a href="/test/pwa-test.html" class="btn">PWA機能をテスト</a>
+            <button class="btn" onclick="showHistory()">運転履歴を表示</button>
+            <button class="btn" onclick="showSettings()">設定</button>
+        </div>
+        
+        <div class="features">
+            <div class="feature">
+                <div class="feature-icon">📱</div>
+                <strong>PWA対応</strong><br>
+                ホーム画面にインストール可能
+            </div>
+            <div class="feature">
+                <div class="feature-icon">🔄</div>
+                <strong>オフライン対応</strong><br>
+                ネット環境なしでも利用可能
+            </div>
+            <div class="feature">
+                <div class="feature-icon">📍</div>
+                <strong>GPS対応</strong><br>
+                位置情報を自動記録
+            </div>
+            <div class="feature">
+                <div class="feature-icon">💾</div>
+                <strong>データ保存</strong><br>
+                ローカルに安全に保存
+            </div>
+        </div>
+    </div>
+
+    <!-- Service Worker Registration -->
+    <script>
+        let deferredPrompt;
+        
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js')
+                    .then(registration => {
+                        console.log('ServiceWorker registration successful:', registration.scope);
+                    })
+                    .catch(err => {
+                        console.log('ServiceWorker registration failed:', err);
+                    });
+            });
+        }
+
+        // PWA Install Prompt
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            console.log('PWA Install prompt available');
+            
+            // Show install button after 3 seconds
+            setTimeout(() => {
+                if (deferredPrompt) {
+                    showInstallButton();
+                }
+            }, 3000);
+        });
+
+        function showInstallButton() {
+            const installBtn = document.createElement('button');
+            installBtn.textContent = '📱 アプリをインストール';
+            installBtn.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: #2196F3;
+                color: white;
+                border: none;
+                padding: 12px 20px;
+                border-radius: 8px;
+                cursor: pointer;
+                font-size: 14px;
+                box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+                z-index: 1000;
+                animation: slideIn 0.3s ease;
+            `;
+            installBtn.onclick = installPWA;
+            document.body.appendChild(installBtn);
+            
+            // Animation CSS
+            const style = document.createElement('style');
+            style.textContent = `
+                @keyframes slideIn {
+                    from { transform: translateX(100%); }
+                    to { transform: translateX(0); }
+                }
+            `;
+            document.head.appendChild(style);
+        }
+
+        async function installPWA() {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                const { outcome } = await deferredPrompt.userChoice;
+                console.log('Install outcome:', outcome);
+                deferredPrompt = null;
+                
+                // Remove install button
+                event.target.remove();
+            }
+        }
+
+        window.addEventListener('appinstalled', () => {
+            console.log('PWA was installed');
+            deferredPrompt = null;
+        });
+
+        // App functions
+        function startNewLog() {
+            alert('新規運転記録機能は開発中です');
+        }
+
+        function showHistory() {
+            alert('運転履歴機能は開発中です');
+        }
+
+        function showSettings() {
+            alert('設定機能は開発中です');
+        }
+
+        // User engagement tracking
+        let userEngagementStart = Date.now();
+        let hasEngagement = false;
+
+        // Track various user interactions
+        document.addEventListener('click', () => {
+            if (!hasEngagement && Date.now() - userEngagementStart > 1000) {
+                hasEngagement = true;
+                console.log('User engagement detected');
+            }
+        });
+
+        document.addEventListener('scroll', () => {
+            if (!hasEngagement && Date.now() - userEngagementStart > 1000) {
+                hasEngagement = true;
+                console.log('User engagement detected via scroll');
+            }
+        });
+
+        // Check for install prompt periodically
+        setInterval(() => {
+            if (deferredPrompt && !document.querySelector('[data-install-btn]')) {
+                console.log('Install prompt available, showing button');
+                showInstallButton();
+            }
+        }, 5000);
+    </script>
+</body>
+</html>

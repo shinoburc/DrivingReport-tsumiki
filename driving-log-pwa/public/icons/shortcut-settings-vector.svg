@@ -1,0 +1,21 @@
+<svg width="96" height="96" viewBox="0 0 96 96" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background Circle -->
+  <circle cx="48" cy="48" r="43.2" fill="#F5F5F5"/>
+  
+  <!-- Icon Path -->
+  
+                <g transform="translate(48, 48)">
+                    <circle r="5.76" fill="none" stroke="#757575" stroke-width="1.44"/>
+                    <g stroke="#757575" stroke-width="0.96" stroke-linecap="round">
+                        <line x1="0" y1="-11.52" x2="0" y2="-8.64"/>
+                        <line x1="0" y1="8.64" x2="0" y2="11.52"/>
+                        <line x1="9.984" y1="-5.76" x2="7.4879999999999995" y2="-4.32"/>
+                        <line x1="-7.4879999999999995" y1="4.32" x2="-9.984" y2="5.76"/>
+                        <line x1="9.984" y1="5.76" x2="7.4879999999999995" y2="4.32"/>
+                        <line x1="-7.4879999999999995" y1="-4.32" x2="-9.984" y2="-5.76"/>
+                    </g>
+                </g>
+  
+  <!-- Border -->
+  <circle cx="48" cy="48" r="43.2" fill="none" stroke="#757575" stroke-width="1.92" opacity="0.6"/>
+</svg>

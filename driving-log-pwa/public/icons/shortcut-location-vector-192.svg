@@ -1,0 +1,18 @@
+<svg width="192" height="192" viewBox="0 0 192 192" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background Circle -->
+  <circle cx="96" cy="96" r="86.4" fill="#FFEBEE"/>
+  
+  <!-- Icon Path -->
+  
+                <g transform="translate(96, 86.4)">
+                    <path d="M 0 -15.36 C -9.600000000000001 -15.36 -15.36 -9.600000000000001 -15.36 0 
+                             C -15.36 5.76 0 23.04 0 23.04 
+                             C 0 23.04 15.36 5.76 15.36 0 
+                             C 15.36 -9.600000000000001 9.600000000000001 -15.36 0 -15.36 Z"
+                          fill="none" stroke="#F44336" stroke-width="2.88"/>
+                    <circle r="4.800000000000001" fill="#F44336"/>
+                </g>
+  
+  <!-- Border -->
+  <circle cx="96" cy="96" r="86.4" fill="none" stroke="#F44336" stroke-width="3.84" opacity="0.6"/>
+</svg>

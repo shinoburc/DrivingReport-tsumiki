@@ -1,0 +1,163 @@
+{
+  "shortcuts": [
+    {
+      "name": "新規運転記録",
+      "short_name": "新規記録",
+      "description": "新しい運転記録を開始します",
+      "url": "/new-log?source=shortcut",
+      "category": "action",
+      "icons": [
+        {
+          "src": "/icons/shortcut-new-log.svg",
+          "sizes": "96x96",
+          "type": "image/svg+xml"
+        },
+        {
+          "src": "/icons/shortcut-new-log-192.svg",
+          "sizes": "192x192",
+          "type": "image/svg+xml"
+        }
+      ]
+    },
+    {
+      "name": "履歴表示",
+      "short_name": "履歴",
+      "description": "過去の運転記録を確認します",
+      "url": "/history?source=shortcut",
+      "category": "view",
+      "icons": [
+        {
+          "src": "/icons/shortcut-history.svg",
+          "sizes": "96x96",
+          "type": "image/svg+xml"
+        },
+        {
+          "src": "/icons/shortcut-history-192.svg",
+          "sizes": "192x192",
+          "type": "image/svg+xml"
+        }
+      ]
+    },
+    {
+      "name": "設定",
+      "short_name": "設定",
+      "description": "アプリの設定を変更します",
+      "url": "/settings?source=shortcut",
+      "category": "configure",
+      "icons": [
+        {
+          "src": "/icons/shortcut-settings.svg",
+          "sizes": "96x96",
+          "type": "image/svg+xml"
+        },
+        {
+          "src": "/icons/shortcut-settings-192.svg",
+          "sizes": "192x192",
+          "type": "image/svg+xml"
+        }
+      ]
+    },
+    {
+      "name": "エクスポート",
+      "short_name": "出力",
+      "description": "運転記録をCSVファイルにエクスポートします",
+      "url": "/export?source=shortcut",
+      "category": "export",
+      "icons": [
+        {
+          "src": "/icons/shortcut-export.svg",
+          "sizes": "96x96",
+          "type": "image/svg+xml"
+        },
+        {
+          "src": "/icons/shortcut-export-192.svg",
+          "sizes": "192x192",
+          "type": "image/svg+xml"
+        }
+      ]
+    },
+    {
+      "name": "現在地記録",
+      "short_name": "位置記録",
+      "description": "現在の位置情報を記録します",
+      "url": "/quick-location?source=shortcut",
+      "category": "action",
+      "icons": [
+        {
+          "src": "/icons/shortcut-location.svg",
+          "sizes": "96x96",
+          "type": "image/svg+xml"
+        },
+        {
+          "src": "/icons/shortcut-location-192.svg",
+          "sizes": "192x192",
+          "type": "image/svg+xml"
+        }
+      ]
+    },
+    {
+      "name": "オフライン同期",
+      "short_name": "同期",
+      "description": "オフラインデータを同期します",
+      "url": "/sync?source=shortcut",
+      "category": "sync",
+      "icons": [
+        {
+          "src": "/icons/shortcut-sync.svg",
+          "sizes": "96x96",
+          "type": "image/svg+xml"
+        },
+        {
+          "src": "/icons/shortcut-sync-192.svg",
+          "sizes": "192x192",
+          "type": "image/svg+xml"
+        }
+      ]
+    }
+  ],
+  "dynamic_shortcuts": [
+    {
+      "name": "最近の記録",
+      "short_name": "最近",
+      "description": "最近作成した運転記録を表示",
+      "url": "/recent?source=dynamic_shortcut",
+      "condition": "has_recent_logs",
+      "max_age_days": 7
+    },
+    {
+      "name": "未完了記録",
+      "short_name": "未完了",
+      "description": "未完了の運転記録を表示",
+      "url": "/incomplete?source=dynamic_shortcut",
+      "condition": "has_incomplete_logs"
+    }
+  ],
+  "contextual_shortcuts": [
+    {
+      "name": "運転開始",
+      "short_name": "開始",
+      "description": "運転を開始します",
+      "url": "/start-driving?source=contextual",
+      "condition": "not_driving",
+      "icon": "🚗"
+    },
+    {
+      "name": "運転終了",
+      "short_name": "終了",
+      "description": "運転を終了します",
+      "url": "/end-driving?source=contextual",
+      "condition": "is_driving",
+      "icon": "🏁"
+    }
+  ],
+  "settings": {
+    "max_shortcuts": 4,
+    "show_dynamic": true,
+    "show_contextual": true,
+    "auto_update": true,
+    "analytics": {
+      "track_usage": true,
+      "track_source": true
+    }
+  }
+}

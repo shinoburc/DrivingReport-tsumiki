@@ -1,0 +1,183 @@
+/* Dashboard Component Styles */
+.dashboard {
+  padding: 16px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* Header Styles */
+.dashboard header {
+  margin-bottom: 16px;
+}
+
+.dashboard h1 {
+  font-size: 24px;
+  font-weight: bold;
+  color: #212121;
+  margin: 0;
+}
+
+/* Section Styles */
+.dashboard section {
+  margin-bottom: 16px;
+  padding: 16px;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.dashboard section h2 {
+  font-size: 18px;
+  font-weight: 500;
+  color: #424242;
+  margin: 0 0 8px 0;
+}
+
+/* Recording Section */
+.dashboard [data-testid="recording-section"] button {
+  padding: 12px 24px;
+  font-size: 16px;
+  font-weight: 500;
+  border: none;
+  border-radius: 8px;
+  background: #2196F3;
+  color: white;
+  cursor: pointer;
+  min-width: 44px;
+  min-height: 44px;
+}
+
+.dashboard [data-testid="recording-section"] button:hover {
+  background: #1976D2;
+}
+
+/* Statistics Grid */
+.statistics-grid.grid-responsive {
+  display: grid;
+  gap: 8px;
+  grid-template-columns: repeat(2, 1fr);
+}
+
+.statistics-grid > div {
+  padding: 8px;
+  background: #FAFAFA;
+  border-radius: 4px;
+  text-align: center;
+  font-size: 16px;
+  color: #616161;
+}
+
+/* Navigation Section */
+.dashboard [data-testid="navigation-section"] {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.dashboard [data-testid="navigation-section"] button {
+  padding: 8px 16px;
+  font-size: 16px;
+  border: 1px solid #E0E0E0;
+  border-radius: 8px;
+  background: white;
+  color: #424242;
+  cursor: pointer;
+  min-width: 44px;
+  min-height: 44px;
+  flex: 1;
+}
+
+.dashboard [data-testid="navigation-section"] button:hover {
+  background: #F5F5F5;
+}
+
+/* Log Items */
+.dashboard [data-testid^="log-item-"] {
+  padding: 8px;
+  margin: 4px 0;
+  border: 1px solid #E0E0E0;
+  border-radius: 4px;
+  cursor: pointer;
+  background: white;
+}
+
+.dashboard [data-testid^="log-item-"]:hover {
+  background: #F5F5F5;
+}
+
+/* Responsive Design */
+.dashboard.mobile-layout {
+  padding: 8px;
+}
+
+.dashboard.mobile-layout .statistics-grid.grid-responsive {
+  grid-template-columns: repeat(2, 1fr);
+}
+
+.dashboard.tablet-layout .statistics-grid.grid-responsive {
+  grid-template-columns: repeat(4, 1fr);
+}
+
+.dashboard.desktop-layout .statistics-grid.grid-responsive {
+  grid-template-columns: repeat(4, 1fr);
+}
+
+/* Accessibility */
+.dashboard button:focus,
+.dashboard [role="button"]:focus {
+  outline: 2px solid #2196F3;
+  outline-offset: 2px;
+}
+
+.dashboard [data-testid^="log-item-"]:focus {
+  outline: 2px solid #2196F3;
+  outline-offset: 2px;
+}
+
+/* Loading State */
+[data-testid="loading-indicator"] {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 200px;
+  font-size: 16px;
+  color: #757575;
+}
+
+/* Error States */
+.dashboard .error-message {
+  padding: 12px;
+  margin: 8px 0;
+  background: #FFEBEE;
+  color: #C62828;
+  border-radius: 4px;
+  border-left: 4px solid #F44336;
+}
+
+.dashboard .error-message button {
+  margin-top: 8px;
+  padding: 8px 16px;
+  background: #F44336;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+/* GPS Indicator */
+[data-testid="gps-indicator"] {
+  margin-top: 8px;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 14px;
+  background: #E8F5E8;
+  color: #2E7D32;
+}
+
+/* Recording Timer */
+[data-testid="recording-timer"] {
+  font-size: 18px;
+  font-weight: bold;
+  color: #F44336;
+  margin: 8px 0;
+}

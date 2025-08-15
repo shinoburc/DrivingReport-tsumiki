@@ -25,6 +25,8 @@
     "noUncheckedIndexedAccess": true,
     "allowUnreachableCode": false,
     "noImplicitOverride": true,
+    "jsx": "react-jsx",
+    "isolatedModules": true,
     "typeRoots": ["./node_modules/@types", "./src/types"],
     "types": ["node", "jest"]
   },

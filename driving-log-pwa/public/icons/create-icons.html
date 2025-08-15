@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>運転日報PWA アイコン生成ツール</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #2196F3;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .icon-preview {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: center;
+            margin: 30px 0;
+        }
+        .icon-item {
+            text-align: center;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border: 2px solid #e9ecef;
+        }
+        .icon-canvas {
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            margin-bottom: 10px;
+        }
+        .size-label {
+            font-weight: bold;
+            color: #333;
+            font-size: 12px;
+        }
+        .controls {
+            text-align: center;
+            margin: 30px 0;
+        }
+        button {
+            background: #2196F3;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 0 10px;
+        }
+        button:hover {
+            background: #1976D2;
+        }
+        .download-section {
+            background: #e3f2fd;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 30px;
+        }
+        .download-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+            margin-top: 15px;
+        }
+        .download-item {
+            background: white;
+            padding: 10px;
+            border-radius: 4px;
+            text-align: center;
+            border: 1px solid #ddd;
+        }
+        .download-link {
+            color: #2196F3;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        .download-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚗 運転日報PWA アイコン生成ツール</h1>
+        
+        <div class="controls">
+            <button onclick="generateIcons()">アイコンを生成</button>
+            <button onclick="downloadAll()">すべてダウンロード</button>
+        </div>
+
+        <div class="icon-preview" id="iconPreview">
+            <!-- アイコンプレビューがここに表示されます -->
+        </div>
+
+        <div class="download-section">
+            <h3>📥 ダウンロード</h3>
+            <p>生成されたアイコンを個別にダウンロードできます</p>
+            <div class="download-grid" id="downloadGrid">
+                <!-- ダウンロードリンクがここに表示されます -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // アイコンサイズの定義
+        const iconSizes = [
+            { size: 16, name: 'favicon-16x16' },
+            { size: 32, name: 'favicon-32x32' },
+            { size: 48, name: 'icon-48x48' },
+            { size: 72, name: 'icon-72x72' },
+            { size: 96, name: 'icon-96x96' },
+            { size: 120, name: 'icon-120x120' },
+            { size: 144, name: 'icon-144x144' },
+            { size: 152, name: 'icon-152x152' },
+            { size: 167, name: 'icon-167x167' },
+            { size: 180, name: 'apple-touch-icon' },
+            { size: 192, name: 'icon-192x192' },
+            { size: 512, name: 'icon-512x512' }
+        ];
+
+        const generatedIcons = new Map();
+
+        function drawIcon(canvas, size) {
+            const ctx = canvas.getContext('2d');
+            const center = size / 2;
+            
+            // 背景
+            ctx.fillStyle = '#FFFFFF';
+            ctx.fillRect(0, 0, size, size);
+            
+            // 丸い背景
+            ctx.beginPath();
+            ctx.arc(center, center, size * 0.45, 0, 2 * Math.PI);
+            ctx.fillStyle = '#2196F3';
+            ctx.fill();
+            
+            // 車のアイコン
+            ctx.fillStyle = '#FFFFFF';
+            ctx.font = `${size * 0.5}px Arial`;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText('🚗', center, center * 1.1);
+            
+            // 日報のライン
+            ctx.strokeStyle = '#FFFFFF';
+            ctx.lineWidth = size * 0.02;
+            
+            // 上部のライン
+            ctx.beginPath();
+            ctx.moveTo(center - size * 0.15, center - size * 0.25);
+            ctx.lineTo(center + size * 0.15, center - size * 0.25);
+            ctx.stroke();
+            
+            // 下部のライン
+            ctx.beginPath();
+            ctx.moveTo(center - size * 0.1, center + size * 0.2);
+            ctx.lineTo(center + size * 0.1, center + size * 0.2);
+            ctx.stroke();
+        }
+
+        function generateIcons() {
+            const previewContainer = document.getElementById('iconPreview');
+            const downloadContainer = document.getElementById('downloadGrid');
+            
+            previewContainer.innerHTML = '';
+            downloadContainer.innerHTML = '';
+            generatedIcons.clear();
+
+            iconSizes.forEach(({ size, name }) => {
+                // Canvas作成
+                const canvas = document.createElement('canvas');
+                canvas.width = size;
+                canvas.height = size;
+                canvas.className = 'icon-canvas';
+                
+                // アイコン描画
+                drawIcon(canvas, size);
+                
+                // プレビュー表示
+                const iconItem = document.createElement('div');
+                iconItem.className = 'icon-item';
+                iconItem.innerHTML = `
+                    <div class="size-label">${size}x${size}px</div>
+                `;
+                iconItem.appendChild(canvas);
+                previewContainer.appendChild(iconItem);
+                
+                // ダウンロード用データURL生成
+                const dataURL = canvas.toDataURL('image/png');
+                generatedIcons.set(name, dataURL);
+                
+                // ダウンロードリンク作成
+                const downloadItem = document.createElement('div');
+                downloadItem.className = 'download-item';
+                downloadItem.innerHTML = `
+                    <div>${name}.png</div>
+                    <a href="${dataURL}" download="${name}.png" class="download-link">
+                        📥 ダウンロード
+                    </a>
+                `;
+                downloadContainer.appendChild(downloadItem);
+            });
+
+            // マスク対応アイコンも生成
+            generateMaskableIcon();
+        }
+
+        function generateMaskableIcon() {
+            const canvas = document.createElement('canvas');
+            canvas.width = 512;
+            canvas.height = 512;
+            const ctx = canvas.getContext('2d');
+            
+            // 安全領域を考慮したマスク対応アイコン
+            const size = 512;
+            const center = size / 2;
+            const safeZone = size * 0.8; // 80%を安全領域として使用
+            
+            // 背景色（全面）
+            ctx.fillStyle = '#2196F3';
+            ctx.fillRect(0, 0, size, size);
+            
+            // 車のアイコン（安全領域内）
+            ctx.fillStyle = '#FFFFFF';
+            ctx.font = `${safeZone * 0.4}px Arial`;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText('🚗', center, center);
+            
+            // 周囲に装飾
+            ctx.strokeStyle = '#FFFFFF';
+            ctx.lineWidth = 4;
+            
+            // 円形の装飾
+            ctx.beginPath();
+            ctx.arc(center, center, safeZone * 0.35, 0, 2 * Math.PI);
+            ctx.stroke();
+            
+            const dataURL = canvas.toDataURL('image/png');
+            generatedIcons.set('maskable-icon-512x512', dataURL);
+            
+            // ダウンロード用に追加
+            const downloadContainer = document.getElementById('downloadGrid');
+            const downloadItem = document.createElement('div');
+            downloadItem.className = 'download-item';
+            downloadItem.innerHTML = `
+                <div>maskable-icon-512x512.png</div>
+                <a href="${dataURL}" download="maskable-icon-512x512.png" class="download-link">
+                    📥 ダウンロード
+                </a>
+            `;
+            downloadContainer.appendChild(downloadItem);
+        }
+
+        function downloadAll() {
+            if (generatedIcons.size === 0) {
+                alert('まずアイコンを生成してください');
+                return;
+            }
+
+            generatedIcons.forEach((dataURL, name) => {
+                const link = document.createElement('a');
+                link.href = dataURL;
+                link.download = `${name}.png`;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            });
+        }
+
+        // ページロード時に自動生成
+        window.addEventListener('load', generateIcons);
+    </script>
+</body>
+</html>

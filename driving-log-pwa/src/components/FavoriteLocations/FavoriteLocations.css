@@ -1,0 +1,398 @@
+/* FavoriteLocations Component Styles */
+.favorite-locations {
+  max-width: 1000px;
+}
+
+/* Controls */
+.controls {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  gap: 16px;
+  align-items: end;
+  margin-bottom: 24px;
+  padding: 16px;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.search-container {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.search-input {
+  padding: 12px;
+  border: 1px solid #D0D0D0;
+  border-radius: 6px;
+  font-size: 14px;
+}
+
+.filter-container {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 140px;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 8px;
+}
+
+.add-button,
+.current-location-button {
+  background: #2196F3;
+  color: white;
+  border: none;
+  padding: 12px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  white-space: nowrap;
+  min-height: 44px;
+}
+
+.current-location-button {
+  background: #4CAF50;
+}
+
+.add-button:hover {
+  background: #1976D2;
+}
+
+.current-location-button:hover {
+  background: #388E3C;
+}
+
+/* Empty State */
+.empty-state {
+  text-align: center;
+  padding: 48px 24px;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.empty-state h3 {
+  margin: 0 0 8px 0;
+  color: #424242;
+}
+
+.empty-state p {
+  margin: 0 0 24px 0;
+  color: #757575;
+}
+
+/* Locations List */
+.locations-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.location-item {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  cursor: grab;
+  transition: all 0.2s ease;
+}
+
+.location-item:hover {
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  transform: translateY(-1px);
+}
+
+.location-item:active {
+  cursor: grabbing;
+}
+
+.location-icon {
+  font-size: 24px;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #F5F5F5;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.location-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.location-name {
+  margin: 0 0 8px 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #212121;
+}
+
+.search-highlight {
+  background: #FFEB3B;
+  padding: 2px 4px;
+  border-radius: 3px;
+}
+
+.location-details {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 8px;
+  font-size: 14px;
+  color: #757575;
+}
+
+.location-type {
+  background: #E3F2FD;
+  color: #1976D2;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.location-address {
+  flex: 1;
+  min-width: 200px;
+}
+
+.location-coordinates {
+  font-family: monospace;
+  font-size: 12px;
+  background: #F5F5F5;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.location-stats {
+  display: flex;
+  gap: 16px;
+  font-size: 12px;
+  color: #757575;
+}
+
+.usage-count {
+  font-weight: 500;
+  color: #4CAF50;
+}
+
+.location-actions {
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.edit-button,
+.delete-button {
+  padding: 8px 12px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 500;
+  min-height: 36px;
+  min-width: 60px;
+}
+
+.edit-button {
+  background: #E3F2FD;
+  color: #1976D2;
+}
+
+.edit-button:hover {
+  background: #BBDEFB;
+}
+
+.delete-button {
+  background: #FFEBEE;
+  color: #D32F2F;
+}
+
+.delete-button:hover {
+  background: #FFCDD2;
+}
+
+/* Form Modal */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background: white;
+  padding: 24px;
+  border-radius: 12px;
+  max-width: 500px;
+  width: 90%;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+}
+
+.modal-content h3 {
+  margin: 0 0 24px 0;
+  color: #212121;
+}
+
+/* Form Styles */
+.location-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.form-group label {
+  font-size: 14px;
+  font-weight: 500;
+  color: #424242;
+}
+
+.form-group input,
+.form-group select {
+  padding: 12px;
+  border: 1px solid #D0D0D0;
+  border-radius: 6px;
+  font-size: 14px;
+}
+
+.form-group input.error {
+  border-color: #F44336;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+  outline: none;
+  border-color: #2196F3;
+  box-shadow: 0 0 0 2px rgba(33, 150, 243, 0.2);
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.error-message {
+  color: #F44336;
+  font-size: 12px;
+  margin-top: 4px;
+}
+
+.form-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+  margin-top: 8px;
+  padding-top: 16px;
+  border-top: 1px solid #E0E0E0;
+}
+
+.cancel-button {
+  background: #757575;
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 8px;
+  cursor: pointer;
+  min-height: 44px;
+}
+
+.save-button {
+  background: #4CAF50;
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 8px;
+  cursor: pointer;
+  min-height: 44px;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .controls {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+  
+  .action-buttons {
+    justify-content: stretch;
+  }
+  
+  .add-button,
+  .current-location-button {
+    flex: 1;
+  }
+  
+  .location-item {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+  
+  .location-content {
+    order: 1;
+  }
+  
+  .location-actions {
+    order: 2;
+    justify-content: stretch;
+  }
+  
+  .edit-button,
+  .delete-button {
+    flex: 1;
+  }
+  
+  .location-details {
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .form-row {
+    grid-template-columns: 1fr;
+  }
+  
+  .form-actions {
+    flex-direction: column;
+  }
+  
+  .modal-content {
+    margin: 16px;
+    width: calc(100% - 32px);
+  }
+}
+
+/* Drag and Drop Visual Feedback */
+.location-item.dragging {
+  opacity: 0.5;
+  transform: rotate(5deg);
+}
+
+.location-item.drag-over {
+  border: 2px dashed #2196F3;
+  background: #E3F2FD;
+}
