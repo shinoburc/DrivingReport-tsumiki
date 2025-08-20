@@ -1,4 +1,10 @@
 // Service Worker integration index
+import { ServiceWorkerManager } from './ServiceWorkerManager';
+import { CacheHandler } from './CacheStrategy';
+import { BackgroundSyncManager } from './BackgroundSyncManager';
+import { SecurityManager } from './SecurityManager';
+import { PrivacyManager } from './PrivacyManager';
+
 export { ServiceWorkerManager } from './ServiceWorkerManager';
 export { CacheHandler } from './CacheStrategy';
 export { BackgroundSyncManager } from './BackgroundSyncManager';

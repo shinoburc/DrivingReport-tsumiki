@@ -41,7 +41,7 @@ export function useHistoryDetail(): UseHistoryDetail {
     setState(prev => ({ ...prev, loading: true, error: null }));
     
     try {
-      const record = await historyController.getRecord(recordId);
+      const record = await historyController.getHistoryDetail(recordId);
       
       if (record) {
         setState(prev => ({
@@ -71,12 +71,9 @@ export function useHistoryDetail(): UseHistoryDetail {
   // Edit record details
   const editRecord = useCallback(async (recordId: string, updates: Partial<DrivingLog>) => {
     try {
-      const updatedRecord = await historyController.updateRecord(recordId, updates);
-      setState(prev => ({
-        ...prev,
-        record: updatedRecord,
-        editing: false
-      }));
+      // Note: This should probably use DrivingLogController
+      // const updatedRecord = await drivingLogController.updateLog(recordId, updates);
+      throw new Error('Update functionality needs to be implemented');
     } catch (error) {
       setState(prev => ({
         ...prev,
@@ -88,12 +85,9 @@ export function useHistoryDetail(): UseHistoryDetail {
   // Delete record
   const deleteRecord = useCallback(async (recordId: string) => {
     try {
-      await historyController.deleteRecord(recordId);
-      setState(prev => ({
-        ...prev,
-        record: null,
-        waypoints: []
-      }));
+      // Note: This should probably use DrivingLogController
+      // await drivingLogController.deleteLog(recordId);
+      throw new Error('Delete functionality needs to be implemented');
     } catch (error) {
       setState(prev => ({
         ...prev,
@@ -105,13 +99,8 @@ export function useHistoryDetail(): UseHistoryDetail {
   // Edit waypoint
   const editWaypoint = useCallback(async (waypointId: string, updates: Partial<Location>) => {
     try {
-      const updatedWaypoint = await historyController.updateWaypoint(waypointId, updates);
-      setState(prev => ({
-        ...prev,
-        waypoints: prev.waypoints.map(wp => 
-          wp.id === waypointId ? { ...wp, ...updatedWaypoint } : wp
-        )
-      }));
+      // Note: Waypoint update functionality needs to be implemented
+      throw new Error('Waypoint update functionality needs to be implemented');
     } catch (error) {
       setState(prev => ({
         ...prev,
@@ -123,11 +112,8 @@ export function useHistoryDetail(): UseHistoryDetail {
   // Delete waypoint
   const deleteWaypoint = useCallback(async (waypointId: string) => {
     try {
-      await historyController.deleteWaypoint(waypointId);
-      setState(prev => ({
-        ...prev,
-        waypoints: prev.waypoints.filter(wp => wp.id !== waypointId)
-      }));
+      // Note: Waypoint delete functionality needs to be implemented
+      throw new Error('Waypoint delete functionality needs to be implemented');
     } catch (error) {
       setState(prev => ({
         ...prev,
@@ -139,7 +125,8 @@ export function useHistoryDetail(): UseHistoryDetail {
   // Export record
   const exportRecord = useCallback(async (recordId: string) => {
     try {
-      await historyController.exportRecord(recordId);
+      // Note: Export functionality needs to be implemented
+      throw new Error('Export functionality needs to be implemented');
     } catch (error) {
       setState(prev => ({
         ...prev,

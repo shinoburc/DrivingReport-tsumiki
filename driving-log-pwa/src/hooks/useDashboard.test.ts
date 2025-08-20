@@ -3,6 +3,7 @@ import { useDashboard } from './useDashboard';
 import { DrivingLogController } from '../controllers/DrivingLogController';
 import { HistoryController } from '../controllers/HistoryController';
 import { DrivingLogStatus, LocationType } from '../types';
+import { DrivingLogModel } from '../models/entities/DrivingLogModel';
 
 // Mock controllers
 jest.mock('../controllers/DrivingLogController');
@@ -11,9 +12,34 @@ jest.mock('../controllers/HistoryController');
 const mockDrivingLogController = DrivingLogController as jest.MockedClass<typeof DrivingLogController>;
 const mockHistoryController = HistoryController as jest.MockedClass<typeof HistoryController>;
 
+// Helper function to create mock log with overrides
+const createMockLog = (overrides: any = {}) => {
+  return DrivingLogModel.create({
+    id: overrides.id || 'log-default',
+    date: overrides.date || new Date('2024-08-15'),
+    startTime: overrides.startTime || new Date('2024-08-15T09:00:00'),
+    endTime: overrides.endTime || new Date('2024-08-15T10:30:00'),
+    startLocation: overrides.startLocation || {
+      id: 'loc-001',
+      name: '東京駅',
+      latitude: 35.6812,
+      longitude: 139.7671,
+      type: LocationType.START,
+      timestamp: new Date('2024-08-15T09:00:00')
+    },
+    endLocation: overrides.endLocation,
+    totalDistance: overrides.totalDistance || 15.2,
+    duration: overrides.duration || 90,
+    status: overrides.status || DrivingLogStatus.COMPLETED,
+    createdAt: overrides.createdAt || new Date('2024-08-15T09:00:00'),
+    updatedAt: overrides.updatedAt || new Date('2024-08-15T10:30:00'),
+    waypoints: overrides.waypoints || []
+  });
+};
+
 // Mock data
 const mockRecentLogs = [
-  {
+  DrivingLogModel.create({
     id: 'log-001',
     date: new Date('2024-08-15'),
     startTime: new Date('2024-08-15T09:00:00'),
@@ -40,12 +66,12 @@ const mockRecentLogs = [
     createdAt: new Date('2024-08-15T09:00:00'),
     updatedAt: new Date('2024-08-15T10:30:00'),
     waypoints: []
-  }
+  })
 ];
 
 const mockAllLogs = [
   ...mockRecentLogs,
-  {
+  DrivingLogModel.create({
     id: 'log-002',
     date: new Date('2024-08-14'),
     startTime: new Date('2024-08-14T14:00:00'),
@@ -72,10 +98,10 @@ const mockAllLogs = [
     createdAt: new Date('2024-08-14T14:00:00'),
     updatedAt: new Date('2024-08-14T15:30:00'),
     waypoints: []
-  }
+  })
 ];
 
-const mockNewLog = {
+const mockNewLog = DrivingLogModel.create({
   id: 'log-new',
   date: new Date(),
   startTime: new Date(),
@@ -91,7 +117,7 @@ const mockNewLog = {
   createdAt: new Date(),
   updatedAt: new Date(),
   waypoints: []
-};
+});
 
 describe('useDashboard Hook', () => {
   let mockDrivingLogInstance: jest.Mocked<DrivingLogController>;
@@ -105,7 +131,6 @@ describe('useDashboard Hook', () => {
       getAllLogs: jest.fn(),
       getActiveLogs: jest.fn(),
       quickStart: jest.fn(),
-      getTotalDistance: jest.fn(),
       createLog: jest.fn(),
       getLog: jest.fn(),
       updateLog: jest.fn(),
@@ -123,8 +148,17 @@ describe('useDashboard Hook', () => {
       hasUnsavedChanges: jest.fn(),
       getLastSaveTime: jest.fn(),
       calculateDistance: jest.fn(),
-      calculateDuration: jest.fn()
-    } as jest.Mocked<DrivingLogController>;
+      calculateDuration: jest.fn(),
+      getTotalDistance: jest.fn(),
+      getCachedLog: jest.fn(),
+      isValidStatusTransition: jest.fn(),
+      getDistanceBetweenPoints: jest.fn(),
+      locationController: {} as any,
+      storageService: {} as any,
+      logs: new Map(),
+      autoSaveConfigs: new Map(),
+      autoSaveTimers: new Map()
+    } as any;
 
     mockHistoryInstance = {
       getHistoryList: jest.fn(),
@@ -139,8 +173,15 @@ describe('useDashboard Hook', () => {
       saveSearchHistory: jest.fn(),
       getSearchHistory: jest.fn(),
       clearSearchHistory: jest.fn(),
-      getStatistics: jest.fn()
-    } as jest.Mocked<HistoryController>;
+      getStatistics: jest.fn(),
+      drivingLogController: {} as any,
+      storageService: {} as any,
+      defaultPageSize: 20,
+      maxSearchHistory: 10,
+      applySearch: jest.fn(),
+      applyFilters: jest.fn(),
+      applySorting: jest.fn()
+    } as any;
 
     mockDrivingLogController.mockImplementation(() => mockDrivingLogInstance);
     mockHistoryController.mockImplementation(() => mockHistoryInstance);
@@ -263,11 +304,12 @@ describe('useDashboard Hook', () => {
     });
 
     it('should limit recent logs to 5 items', async () => {
-      const manyLogs = Array.from({ length: 10 }, (_, i) => ({
-        ...mockRecentLogs[0],
-        id: `log-${i}`,
-        date: new Date(Date.now() - i * 24 * 60 * 60 * 1000)
-      }));
+      const manyLogs = Array.from({ length: 10 }, (_, i) => 
+        createMockLog({
+          id: `log-${i}`,
+          date: new Date(Date.now() - i * 24 * 60 * 60 * 1000)
+        })
+      );
 
       mockDrivingLogInstance.getAllLogs.mockResolvedValue(manyLogs);
 
@@ -285,8 +327,8 @@ describe('useDashboard Hook', () => {
     it('should calculate today distance correctly', async () => {
       const today = new Date();
       const todayLogs = [
-        { ...mockRecentLogs[0], date: today, totalDistance: 10.5 },
-        { ...mockRecentLogs[0], id: 'log-today-2', date: today, totalDistance: 15.0 }
+        createMockLog({ date: today, totalDistance: 10.5 }),
+        createMockLog({ id: 'log-today-2', date: today, totalDistance: 15.0 })
       ];
 
       mockDrivingLogInstance.getAllLogs.mockResolvedValue(todayLogs);
@@ -304,8 +346,8 @@ describe('useDashboard Hook', () => {
       const now = new Date();
       const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
       const weekLogs = [
-        { ...mockRecentLogs[0], date: now, totalDistance: 10.5 },
-        { ...mockRecentLogs[0], id: 'log-week-2', date: weekAgo, totalDistance: 15.0 }
+        createMockLog({ date: now, totalDistance: 10.5 }),
+        createMockLog({ id: 'log-week-2', date: weekAgo, totalDistance: 15.0 })
       ];
 
       mockDrivingLogInstance.getAllLogs.mockResolvedValue(weekLogs);
@@ -323,8 +365,8 @@ describe('useDashboard Hook', () => {
       const now = new Date();
       const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
       const monthLogs = [
-        { ...mockRecentLogs[0], date: now, totalDistance: 10.5 },
-        { ...mockRecentLogs[0], id: 'log-month-2', date: monthStart, totalDistance: 15.0 }
+        createMockLog({ date: now, totalDistance: 10.5 }),
+        createMockLog({ id: 'log-month-2', date: monthStart, totalDistance: 15.0 })
       ];
 
       mockDrivingLogInstance.getAllLogs.mockResolvedValue(monthLogs);

@@ -15,6 +15,7 @@ import {
   PrivacyOptions,
   DrivingLogStatus,
   ExportFilters,
+  ExportFormat,
   ExportHistoryEntry,
   ValidationWarning,
   ExportSettingsValidation
@@ -36,15 +37,45 @@ export class ExportController implements IExportController {
   }
 
   async saveExportSettings(settings: ExportSettings): Promise<void> {
-    await this.storageService.save('exportSettings', settings);
+    const appSettings = await this.storageService.getSettings();
+    await this.storageService.updateSettings({
+      ...appSettings,
+      exportFormat: ExportFormat.CSV,
+      defaultExportPeriod: typeof settings.filters.dateRange === 'number' ? settings.filters.dateRange : 30,
+      exportPrivacyLevel: settings.privacy.anonymizeDriverName ? 'full' : 'minimal'
+    });
   }
 
   async loadExportSettings(): Promise<ExportSettings> {
-    const settings = await this.storageService.get('exportSettings');
-    if (settings) {
-      return settings;
-    }
-    return this.getDefaultSettings();
+    const appSettings = await this.storageService.getSettings();
+    return {
+      fields: [],
+      filters: {},
+      format: {
+        delimiter: ',',
+        encoding: 'utf-8',
+        lineEnding: '\n',
+        quote: 'minimal',
+        dateFormat: 'YYYY-MM-DD',
+        timeFormat: 'HH:mm',
+        numberFormat: {
+          decimalPlaces: 2,
+          thousandSeparator: false,
+          distanceUnit: 'km',
+          durationUnit: 'minutes'
+        }
+      },
+      privacy: {
+        anonymizeDriverName: false,
+        anonymizeVehicleNumber: false,
+        excludeGPSCoordinates: false,
+        maskSensitiveLocations: false,
+        coordinatePrecision: 4
+      },
+      fileNameTemplate: 'driving-log-{date}',
+      useWebWorker: false,
+      chunkSize: 1000
+    };
   }
 
   getDefaultSettings(): ExportSettings {
@@ -117,27 +148,27 @@ export class ExportController implements IExportController {
   }
 
   async savePreset(preset: ExportPreset): Promise<void> {
-    const existingPresets = await this.storageService.get('exportPresets') || {};
+    const existingPresets = JSON.parse(localStorage.getItem('exportPresets') || '{}') || {};
     existingPresets[preset.id] = preset;
-    await this.storageService.save('exportPresets', existingPresets);
+    localStorage.setItem('exportPresets', JSON.stringify(existingPresets));
   }
 
   async getPresets(): Promise<ExportPreset[]> {
-    const presets = await this.storageService.get('exportPresets') || {};
+    const presets = JSON.parse(localStorage.getItem('exportPresets') || '{}') || {};
     return Object.values(presets);
   }
 
   async deletePreset(presetId: string): Promise<void> {
-    const presets = await this.storageService.get('exportPresets') || {};
+    const presets = JSON.parse(localStorage.getItem('exportPresets') || '{}') || {};
     if (!presets[presetId]) {
       throw new Error(`Preset ${presetId} not found`);
     }
     delete presets[presetId];
-    await this.storageService.save('exportPresets', presets);
+    localStorage.setItem('exportPresets', JSON.stringify(presets));
   }
 
   async setDefaultPreset(presetId: string): Promise<void> {
-    const presets = await this.storageService.get('exportPresets') || {};
+    const presets = JSON.parse(localStorage.getItem('exportPresets') || '{}') || {};
     
     Object.values(presets).forEach((preset: any) => {
       preset.isDefault = false;
@@ -145,7 +176,7 @@ export class ExportController implements IExportController {
     
     if (presets[presetId]) {
       presets[presetId].isDefault = true;
-      await this.storageService.save('exportPresets', presets);
+      localStorage.setItem('exportPresets', JSON.stringify(presets));
     }
   }
 
@@ -181,7 +212,7 @@ export class ExportController implements IExportController {
 
       let data;
       try {
-        data = await this.storageService.getAll();
+        data = await this.storageService.queryDrivingLogs();
         if (this.abortController?.signal.aborted) {
           throw new Error('Export cancelled by user');
         }
@@ -439,7 +470,7 @@ export class ExportController implements IExportController {
   }
 
   async getExportHistory(): Promise<ExportHistoryEntry[]> {
-    const history = await this.storageService.get('exportHistory') || [];
+    const history = JSON.parse(localStorage.getItem('exportHistory') || '[]') || [];
     return history;
   }
 
@@ -578,7 +609,7 @@ export class ExportController implements IExportController {
   }
 
   private async addToHistory(result: ExportResult): Promise<void> {
-    const history = await this.storageService.get('exportHistory') || [];
+    const history = JSON.parse(localStorage.getItem('exportHistory') || '[]') || [];
     const entry: ExportHistoryEntry = {
       id: `export-${Date.now()}`,
       timestamp: result.timestamp,
@@ -596,6 +627,6 @@ export class ExportController implements IExportController {
       history.splice(100);
     }
 
-    await this.storageService.save('exportHistory', history);
+    localStorage.setItem('exportHistory', JSON.stringify(history));
   }
 }

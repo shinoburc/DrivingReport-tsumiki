@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ドライビングログ PWA</title>
+    
+    <!-- PWA設定 -->
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#1976d2">
+    
+    <!-- アイコン設定 -->
+    <link rel="icon" href="/icons/favicon.svg" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="/icons/icon-180x180.svg">
+    
+    <!-- スタイルシート -->
+    <link rel="stylesheet" href="/css/app.css">
+    
+    <style>
+        .dashboard { padding: 20px; max-width: 800px; margin: 0 auto; }
+        .record-button { 
+            width: 100%; 
+            padding: 20px; 
+            font-size: 18px; 
+            background-color: #1976d2; 
+            color: white; 
+            border: none; 
+            border-radius: 8px; 
+            cursor: pointer; 
+            margin-bottom: 20px;
+        }
+        .record-button:hover { background-color: #1565c0; }
+        .status { padding: 10px; margin: 10px 0; border-radius: 5px; }
+        .status.recording { background-color: #e8f5e8; color: #2e7d32; }
+        .status.error { background-color: #ffebee; color: #c62828; }
+        .gps-status { margin: 10px 0; padding: 10px; border-radius: 5px; background-color: #f5f5f5; }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <div class="dashboard">
+            <header>
+                <h1>運転日報</h1>
+            </header>
+            
+            <div id="recording-section">
+                <button id="start-record-btn" class="record-button">
+                    新規運転記録を開始
+                </button>
+                <div id="gps-status" class="gps-status" style="display: none;">
+                    GPS状態: <span id="gps-text">取得中...</span>
+                </div>
+                <div id="status-message" class="status" style="display: none;"></div>
+            </div>
+            
+            <div id="recent-logs">
+                <h2>最近の記録</h2>
+                <p>記録がありません。記録を開始してみましょう。</p>
+            </div>
+            
+            <div id="statistics">
+                <h2>統計</h2>
+                <div>今日: 0.0km</div>
+                <div>今週: 0.0km</div>
+                <div>今月: 0.0km</div>
+                <div>総記録: 0件</div>
+            </div>
+            
+            <div>
+                <button onclick="showHistory()">履歴</button>
+                <button onclick="showSettings()">設定</button>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        let isRecording = false;
+        let currentPosition = null;
+        
+        function showStatus(message, type = 'info') {
+            const statusDiv = document.getElementById('status-message');
+            statusDiv.textContent = message;
+            statusDiv.className = 'status ' + type;
+            statusDiv.style.display = 'block';
+        }
+        
+        function hideStatus() {
+            document.getElementById('status-message').style.display = 'none';
+        }
+        
+        function updateGPSStatus(text) {
+            document.getElementById('gps-text').textContent = text;
+            document.getElementById('gps-status').style.display = 'block';
+        }
+        
+        async function getCurrentPosition() {
+            return new Promise((resolve, reject) => {
+                if (!navigator.geolocation) {
+                    reject(new Error('GPS機能が利用できません'));
+                    return;
+                }
+                
+                const options = {
+                    enableHighAccuracy: true,
+                    timeout: 10000,
+                    maximumAge: 0
+                };
+                
+                navigator.geolocation.getCurrentPosition(
+                    (position) => {
+                        resolve({
+                            latitude: position.coords.latitude,
+                            longitude: position.coords.longitude,
+                            accuracy: position.coords.accuracy,
+                            timestamp: new Date()
+                        });
+                    },
+                    (error) => {
+                        let message = 'GPS取得に失敗しました';
+                        switch(error.code) {
+                            case error.PERMISSION_DENIED:
+                                message = 'GPS権限が拒否されました。ブラウザの設定で位置情報を許可してください。';
+                                break;
+                            case error.POSITION_UNAVAILABLE:
+                                message = 'GPS信号を取得できません。';
+                                break;
+                            case error.TIMEOUT:
+                                message = 'GPS取得がタイムアウトしました。';
+                                break;
+                        }
+                        reject(new Error(message));
+                    },
+                    options
+                );
+            });
+        }
+        
+        async function startRecording() {
+            if (isRecording) return;
+            
+            const btn = document.getElementById('start-record-btn');
+            btn.disabled = true;
+            btn.textContent = 'GPS取得中...';
+            
+            hideStatus();
+            updateGPSStatus('GPS位置情報を取得中...');
+            
+            try {
+                const position = await getCurrentPosition();
+                currentPosition = position;
+                
+                isRecording = true;
+                btn.textContent = '記録中 - 記録を停止';
+                btn.disabled = false;
+                
+                updateGPSStatus(`緯度: ${position.latitude.toFixed(6)}, 経度: ${position.longitude.toFixed(6)}, 精度: ${Math.round(position.accuracy)}m`);
+                showStatus('運転記録を開始しました。現在地を記録しています。', 'recording');
+                
+                // ローカルストレージに記録を保存
+                const record = {
+                    id: Date.now().toString(),
+                    startTime: new Date().toISOString(),
+                    startLocation: position,
+                    status: 'recording'
+                };
+                
+                localStorage.setItem('currentRecord', JSON.stringify(record));
+                
+            } catch (error) {
+                console.error('GPS取得エラー:', error);
+                showStatus(error.message, 'error');
+                btn.textContent = '新規運転記録を開始';
+                btn.disabled = false;
+                document.getElementById('gps-status').style.display = 'none';
+            }
+        }
+        
+        function stopRecording() {
+            if (!isRecording) return;
+            
+            isRecording = false;
+            const btn = document.getElementById('start-record-btn');
+            btn.textContent = '新規運転記録を開始';
+            
+            showStatus('運転記録を停止しました。', 'info');
+            localStorage.removeItem('currentRecord');
+            document.getElementById('gps-status').style.display = 'none';
+        }
+        
+        function showHistory() {
+            alert('履歴機能は開発中です');
+        }
+        
+        function showSettings() {
+            alert('設定機能は開発中です');
+        }
+        
+        // ボタンのイベントリスナー
+        document.getElementById('start-record-btn').addEventListener('click', function() {
+            if (isRecording) {
+                stopRecording();
+            } else {
+                startRecording();
+            }
+        });
+        
+        // ページ読み込み時の初期化
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('アプリケーションが読み込まれました');
+            
+            // 既存の記録があるかチェック
+            const currentRecord = localStorage.getItem('currentRecord');
+            if (currentRecord) {
+                const record = JSON.parse(currentRecord);
+                if (record.status === 'recording') {
+                    isRecording = true;
+                    document.getElementById('start-record-btn').textContent = '記録中 - 記録を停止';
+                    showStatus('記録が継続中です', 'recording');
+                }
+            }
+        });
+        
+        // Service Worker登録
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/service-worker.js')
+                    .then(registration => {
+                        console.log('Service Worker registered successfully:', registration.scope);
+                    })
+                    .catch(error => {
+                        console.log('Service Worker registration failed:', error);
+                    });
+            });
+        }
+    </script>
+</body>
+</html>

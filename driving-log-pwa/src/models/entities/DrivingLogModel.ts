@@ -18,6 +18,7 @@ export class DrivingLogModel extends BaseModel implements DrivingLog {
   public readonly waypoints: Location[];
   public readonly endLocation?: Location;
   public readonly totalDistance?: number;
+  public readonly duration?: number;
   public readonly status: DrivingLogStatus;
   public readonly createdAt: Date;
   public readonly updatedAt: Date;
@@ -29,9 +30,10 @@ export class DrivingLogModel extends BaseModel implements DrivingLog {
     this.driverName = data.driverName;
     this.vehicleNumber = data.vehicleNumber;
     this.startLocation = data.startLocation;
-    this.waypoints = Object.freeze([...data.waypoints]) as readonly Location[];
+    this.waypoints = [...data.waypoints];
     this.endLocation = data.endLocation;
     this.totalDistance = data.totalDistance;
+    this.duration = data.duration;
     this.status = data.status;
     this.createdAt = data.createdAt;
     this.updatedAt = data.updatedAt;
@@ -180,7 +182,7 @@ export class DrivingLogModel extends BaseModel implements DrivingLog {
     return DrivingLogModel.create(data);
   }
 
-  validate(): ValidationResult {
+  override validate(): ValidationResult {
     return ModelValidator.validateDrivingLog(this);
   }
 
@@ -200,7 +202,7 @@ export class DrivingLogModel extends BaseModel implements DrivingLog {
     };
   }
 
-  static fromJSON(data: Record<string, any>): DrivingLogModel {
+  static override fromJSON(data: Record<string, any>): DrivingLogModel {
     return DrivingLogModel.create({
       id: data.id,
       date: new Date(data.date),

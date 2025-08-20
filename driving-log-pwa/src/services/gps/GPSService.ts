@@ -326,4 +326,8 @@ export class GPSService implements IGPSService {
     // 現在はクリーンアップする特別なリソースはないが、
     // 将来的にwatchPositionなどを追加した場合のために準備
   }
+
+  isAvailable(): boolean {
+    return 'geolocation' in navigator;
+  }
 }

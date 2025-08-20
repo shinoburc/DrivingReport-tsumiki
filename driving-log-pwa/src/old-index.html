@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ドライビングログ PWA</title>
+    
+    <!-- PWA設定 -->
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#1976d2">
+    
+    <!-- アイコン設定 -->
+    <link rel="icon" href="/icons/favicon.svg" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="/icons/icon-180x180.svg">
+    
+    <!-- スタイルシート -->
+    <link rel="stylesheet" href="/css/app.css">
+</head>
+<body>
+    <div id="app">
+        <div class="loading">
+            <div class="loading-spinner"></div>
+            <p>ドライビングログを読み込み中...</p>
+        </div>
+    </div>
+    
+    <!-- Reactアプリケーション -->
+    <script type="module" src="./main.tsx"></script>
+</body>
+</html>

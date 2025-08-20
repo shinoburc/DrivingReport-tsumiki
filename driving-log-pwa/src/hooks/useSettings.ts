@@ -18,7 +18,7 @@ const DEFAULT_SETTINGS: AppSettings = {
   gpsTimeout: 30,
   gpsAccuracyThreshold: 50,
   exportFormat: ExportFormat.CSV,
-  defaultExportPeriod: 'month',
+  defaultExportPeriod: 30,
   exportPrivacyLevel: 'full',
   autoExportEnabled: false,
   autoExportFrequency: 'monthly',
@@ -27,6 +27,9 @@ const DEFAULT_SETTINGS: AppSettings = {
   favoriteLocations: [],
   firstLaunchDate: new Date(),
   appVersion: process.env.REACT_APP_VERSION || '1.0.0',
+  notificationsEnabled: true,
+  offlineModeEnabled: false,
+  autoClearDataEnabled: false,
 };
 
 export function useSettings(): UseSettingsReturn {
@@ -34,7 +37,7 @@ export function useSettings(): UseSettingsReturn {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const storageService = StorageService.getInstance();
+  const storageService = new StorageService();
 
   // Load settings on mount
   useEffect(() => {
@@ -46,6 +49,7 @@ export function useSettings(): UseSettingsReturn {
       setLoading(true);
       setError(null);
       
+      await storageService.initialize();
       const loadedSettings = await storageService.getSettings();
       
       if (loadedSettings) {
@@ -55,7 +59,7 @@ export function useSettings(): UseSettingsReturn {
       } else {
         // First time user, set defaults
         setSettings(DEFAULT_SETTINGS);
-        await storageService.saveSettings(DEFAULT_SETTINGS);
+        await storageService.updateSettings(DEFAULT_SETTINGS);
       }
     } catch (err) {
       console.error('Failed to load settings:', err);
@@ -121,7 +125,7 @@ export function useSettings(): UseSettingsReturn {
       const updatedSettings = { ...settings, [key]: value };
       
       // Save to storage
-      await storageService.saveSettings(updatedSettings);
+      await storageService.updateSettings(updatedSettings);
       
       // Update local state
       setSettings(updatedSettings);
@@ -142,7 +146,7 @@ export function useSettings(): UseSettingsReturn {
         favoriteLocations: [], // Clear favorite locations on reset
       };
       
-      await storageService.saveSettings(resetSettings);
+      await storageService.updateSettings(resetSettings);
       setSettings(resetSettings);
     } catch (err) {
       console.error('Failed to reset settings:', err);
@@ -178,7 +182,7 @@ export function useSettings(): UseSettingsReturn {
       validatedSettings.firstLaunchDate = settings?.firstLaunchDate || new Date();
       validatedSettings.appVersion = DEFAULT_SETTINGS.appVersion;
 
-      await storageService.saveSettings(validatedSettings);
+      await storageService.updateSettings(validatedSettings);
       setSettings(validatedSettings);
     } catch (err) {
       console.error('Failed to import settings:', err);

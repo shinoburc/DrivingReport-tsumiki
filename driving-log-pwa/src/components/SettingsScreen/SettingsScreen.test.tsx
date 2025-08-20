@@ -2,7 +2,7 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { SettingsScreen } from './SettingsScreen';
 import { useSettings } from '../../hooks/useSettings';
-import { AppSettings, ExportFormat } from '../../types';
+import { AppSettings, ExportFormat, LocationType } from '../../types';
 
 // Mock the useSettings hook
 jest.mock('../../hooks/useSettings');
@@ -30,13 +30,16 @@ describe('SettingsScreen', () => {
     gpsTimeout: 30,
     gpsAccuracyThreshold: 50,
     exportFormat: ExportFormat.CSV,
-    defaultExportPeriod: 'month',
+    defaultExportPeriod: 30,
     exportPrivacyLevel: 'full',
     autoExportEnabled: false,
     autoExportFrequency: 'monthly',
     compactMode: false,
     showTutorial: true,
     favoriteLocations: [],
+    notificationsEnabled: true,
+    offlineModeEnabled: true,
+    autoClearDataEnabled: false,
     driverName: 'Test Driver',
     vehicleInfo: {
       make: 'Toyota',
@@ -289,7 +292,8 @@ describe('SettingsScreen', () => {
           address: `Address ${i}`,
           latitude: 35.6762 + (i * 0.001),
           longitude: 139.6503 + (i * 0.001),
-          type: 'other' as const,
+          type: LocationType.OTHER,
+          timestamp: new Date(),
           createdAt: new Date(),
           usageCount: i,
         })),

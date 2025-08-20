@@ -1,5 +1,5 @@
 import { JSX, useState, useCallback, useMemo } from 'react';
-import { FavoriteLocation } from '../../types';
+import { FavoriteLocation, LocationType } from '../../types';
 import { createButtonProps, createListProps, createListItemProps } from '../../utils/accessibility';
 import './FavoriteLocations.css';
 
@@ -16,7 +16,7 @@ interface LocationFormData {
   address: string;
   latitude: number | '';
   longitude: number | '';
-  type: 'home' | 'work' | 'other';
+  type: LocationType;
   icon: string;
   color: string;
 }
@@ -29,7 +29,7 @@ export function FavoriteLocations({
   onLocationDelete,
 }: FavoriteLocationsProps): JSX.Element {
   const [searchQuery, setSearchQuery] = useState('');
-  const [typeFilter, setTypeFilter] = useState<'all' | 'home' | 'work' | 'other'>('all');
+  const [typeFilter, setTypeFilter] = useState<'all' | LocationType>('all');
   const [showAddForm, setShowAddForm] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
@@ -38,7 +38,7 @@ export function FavoriteLocations({
     address: '',
     latitude: '',
     longitude: '',
-    type: 'other',
+    type: LocationType.OTHER,
     icon: '📍',
     color: '#757575',
   });
@@ -97,7 +97,8 @@ export function FavoriteLocations({
         address: '',
         latitude: position.coords.latitude,
         longitude: position.coords.longitude,
-        type: 'other' as const,
+        type: LocationType.OTHER,
+        timestamp: new Date(),
         icon: '🚩',
         color: '#4CAF50',
         createdAt: new Date(),
@@ -138,6 +139,7 @@ export function FavoriteLocations({
         latitude: formData.latitude === '' ? undefined : formData.latitude,
         longitude: formData.longitude === '' ? undefined : formData.longitude,
         type: formData.type,
+        timestamp: new Date(),
         icon: formData.icon,
         color: formData.color,
         createdAt: new Date(),
@@ -156,7 +158,7 @@ export function FavoriteLocations({
       address: '',
       latitude: '',
       longitude: '',
-      type: 'other',
+      type: LocationType.OTHER,
       icon: '📍',
       color: '#757575',
     });
@@ -203,18 +205,18 @@ export function FavoriteLocations({
     }
   };
 
-  const getTypeIcon = (type: string) => {
+  const getTypeIcon = (type: LocationType) => {
     switch (type) {
-      case 'home': return '🏠';
-      case 'work': return '🏢';
+      case LocationType.HOME: return '🏠';
+      case LocationType.WORK: return '🏢';
       default: return '📍';
     }
   };
 
-  const getTypeLabel = (type: string) => {
+  const getTypeLabel = (type: LocationType) => {
     switch (type) {
-      case 'home': return '自宅';
-      case 'work': return '職場';
+      case LocationType.HOME: return '自宅';
+      case LocationType.WORK: return '職場';
       default: return 'その他';
     }
   };
@@ -243,9 +245,9 @@ export function FavoriteLocations({
             onChange={(e) => setTypeFilter(e.target.value as typeof typeFilter)}
           >
             <option value="all">すべて</option>
-            <option value="home">自宅</option>
-            <option value="work">職場</option>
-            <option value="other">その他</option>
+            <option value={LocationType.HOME}>自宅</option>
+            <option value={LocationType.WORK}>職場</option>
+            <option value={LocationType.OTHER}>その他</option>
           </select>
         </div>
 
@@ -431,12 +433,12 @@ export function FavoriteLocations({
                   value={formData.type}
                   onChange={(e) => setFormData(prev => ({ 
                     ...prev, 
-                    type: e.target.value as 'home' | 'work' | 'other'
+                    type: e.target.value as LocationType
                   }))}
                 >
-                  <option value="home">自宅</option>
-                  <option value="work">職場</option>
-                  <option value="other">その他</option>
+                  <option value={LocationType.HOME}>自宅</option>
+                  <option value={LocationType.WORK}>職場</option>
+                  <option value={LocationType.OTHER}>その他</option>
                 </select>
               </div>
 

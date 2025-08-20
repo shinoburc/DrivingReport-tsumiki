@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>React App Test</title>
+</head>
+<body>
+    <div id="app">Loading...</div>
+    
+    <script>
+        console.log('Test page loaded');
+        
+        // Test if the file exists
+        fetch('/js/app.js')
+            .then(response => {
+                console.log('app.js response status:', response.status);
+                return response.text();
+            })
+            .then(text => {
+                console.log('app.js first 500 chars:', text.substring(0, 500));
+            })
+            .catch(error => {
+                console.error('Failed to fetch app.js:', error);
+            });
+            
+        // Test if React is available
+        if (typeof React !== 'undefined') {
+            console.log('React is available');
+        } else {
+            console.log('React is NOT available');
+        }
+    </script>
+    
+    <!-- Try loading the main script -->
+    <script type="module">
+        console.log('Module script loaded');
+        try {
+            import('/js/app.js').then(module => {
+                console.log('Module imported successfully:', module);
+            }).catch(error => {
+                console.error('Module import failed:', error);
+            });
+        } catch (error) {
+            console.error('Module import error:', error);
+        }
+    </script>
+</body>
+</html>

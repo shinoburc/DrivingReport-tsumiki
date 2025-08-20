@@ -1,9 +1,11 @@
 import { useState, useEffect, useCallback } from 'react';
-import { DrivingLog, DrivingLogStatus, HistoryStatistics, DrivingLogModel } from '../types';
+import { DrivingLog, DrivingLogStatus, HistoryStatistics } from '../types';
+import { DrivingLogModel } from '../models/entities/DrivingLogModel';
 import { DrivingLogController } from '../controllers/DrivingLogController';
 import { HistoryController } from '../controllers/HistoryController';
 import { LocationController } from '../controllers/LocationController';
 import { StorageService } from '../services/StorageService';
+import { GPSService } from '../services/gps/GPSService';
 
 interface DashboardStatistics {
   todayDistance: number;
@@ -41,14 +43,17 @@ export interface UseDashboard {
 
 // Create singleton instances - these could be injected via context in the future
 let storageService: StorageService | null = null;
+let gpsService: GPSService | null = null;
 let locationController: LocationController | null = null;
 let drivingLogController: DrivingLogController | null = null;
 let historyController: HistoryController | null = null;
 
-function getControllers() {
+async function getControllers() {
   if (!storageService) {
     storageService = new StorageService();
-    locationController = new LocationController();
+    await storageService.initialize();
+    gpsService = new GPSService();
+    locationController = new LocationController(gpsService, storageService);
     drivingLogController = new DrivingLogController(locationController, storageService);
     historyController = new HistoryController(drivingLogController, storageService);
   }
@@ -92,7 +97,7 @@ export function useDashboard(): UseDashboard {
     try {
       setState(prev => ({ ...prev, isLoading: true, errors: [] }));
       
-      const { drivingLogController } = getControllers();
+      const { drivingLogController } = await getControllers();
 
       // Get recent logs and active recordings in parallel
       const [allLogs, activeLogs] = await Promise.all([
@@ -137,7 +142,7 @@ export function useDashboard(): UseDashboard {
 
   const startRecording = useCallback(async () => {
     try {
-      const { drivingLogController } = getControllers();
+      const { drivingLogController } = await getControllers();
       const newLog = await drivingLogController.quickStart();
       setState(prev => ({
         ...prev,
@@ -181,7 +186,7 @@ export function useDashboard(): UseDashboard {
 
   useEffect(() => {
     loadData();
-  }, [loadData]);
+  }, []); // 初回のみ実行
 
   return {
     state,

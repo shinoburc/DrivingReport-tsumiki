@@ -104,7 +104,7 @@ export class CSVService implements ICSVService {
         break;
     }
     
-    return new Blob([encodedData], { 
+    return new Blob([encodedData as any], { 
       type: 'text/csv;charset=utf-8' 
     });
   }

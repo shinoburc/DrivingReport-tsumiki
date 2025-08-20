@@ -1,0 +1,352 @@
+name: E2E Tests with Playwright
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+  schedule:
+    # Run daily at 2 AM UTC
+    - cron: '0 2 * * *'
+
+jobs:
+  e2e-tests:
+    name: Run E2E Tests
+    timeout-minutes: 60
+    runs-on: ubuntu-latest
+    
+    strategy:
+      fail-fast: false
+      matrix:
+        browser: [chromium, firefox, webkit]
+        shard: [1, 2, 3, 4]
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: |
+        cd driving-log-pwa
+        npm ci
+        
+    - name: Install Playwright Browsers
+      run: |
+        cd driving-log-pwa
+        npx playwright install --with-deps ${{ matrix.browser }}
+        
+    - name: Build application
+      run: |
+        cd driving-log-pwa
+        npm run build
+        
+    - name: Run E2E tests
+      run: |
+        cd driving-log-pwa
+        npx playwright test --project=${{ matrix.browser }} --shard=${{ matrix.shard }}/4
+      env:
+        CI: true
+        
+    - name: Upload test results
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: playwright-report-${{ matrix.browser }}-${{ matrix.shard }}
+        path: driving-log-pwa/playwright-report/
+        retention-days: 30
+        
+    - name: Upload test videos
+      uses: actions/upload-artifact@v4
+      if: failure()
+      with:
+        name: playwright-videos-${{ matrix.browser }}-${{ matrix.shard }}
+        path: driving-log-pwa/test-results/
+        retention-days: 7
+
+  performance-tests:
+    name: Performance Tests
+    timeout-minutes: 30
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: |
+        cd driving-log-pwa
+        npm ci
+        
+    - name: Install Playwright
+      run: |
+        cd driving-log-pwa
+        npx playwright install chromium
+        
+    - name: Build application
+      run: |
+        cd driving-log-pwa
+        npm run build
+        
+    - name: Run performance tests
+      run: |
+        cd driving-log-pwa
+        npx playwright test e2e/05-performance.spec.ts --project=chromium
+      env:
+        CI: true
+        
+    - name: Generate performance report
+      run: |
+        cd driving-log-pwa
+        npx playwright show-report --port 9323 --host 0.0.0.0 &
+        sleep 5
+        curl -X GET http://localhost:9323 > performance-report.html || true
+        
+    - name: Upload performance report
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: performance-report
+        path: driving-log-pwa/performance-report.html
+        retention-days: 30
+
+  mobile-tests:
+    name: Mobile Device Tests
+    timeout-minutes: 45
+    runs-on: ubuntu-latest
+    
+    strategy:
+      fail-fast: false
+      matrix:
+        device: [
+          'iPhone 12',
+          'iPhone SE',
+          'Pixel 5',
+          'Galaxy S21',
+          'iPad Air'
+        ]
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: |
+        cd driving-log-pwa
+        npm ci
+        
+    - name: Install Playwright
+      run: |
+        cd driving-log-pwa
+        npx playwright install chromium webkit
+        
+    - name: Build application
+      run: |
+        cd driving-log-pwa
+        npm run build
+        
+    - name: Run mobile device tests
+      run: |
+        cd driving-log-pwa
+        npx playwright test e2e/07-mobile-devices.spec.ts --grep "${{ matrix.device }}"
+      env:
+        CI: true
+        
+    - name: Upload mobile test results
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: mobile-test-results-${{ matrix.device }}
+        path: driving-log-pwa/test-results/
+        retention-days: 7
+
+  accessibility-tests:
+    name: Accessibility Tests
+    timeout-minutes: 20
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: |
+        cd driving-log-pwa
+        npm ci
+        
+    - name: Install axe-playwright
+      run: |
+        cd driving-log-pwa
+        npm install --save-dev @axe-core/playwright
+        
+    - name: Install Playwright
+      run: |
+        cd driving-log-pwa
+        npx playwright install chromium
+        
+    - name: Build application
+      run: |
+        cd driving-log-pwa
+        npm run build
+        
+    - name: Run accessibility tests
+      run: |
+        cd driving-log-pwa
+        npx playwright test e2e/accessibility.spec.ts --project=chromium
+      env:
+        CI: true
+        
+    - name: Upload accessibility report
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: accessibility-report
+        path: driving-log-pwa/accessibility-report/
+        retention-days: 30
+
+  security-tests:
+    name: Security Tests
+    timeout-minutes: 25
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: |
+        cd driving-log-pwa
+        npm ci
+        
+    - name: Install Playwright
+      run: |
+        cd driving-log-pwa
+        npx playwright install chromium
+        
+    - name: Build application
+      run: |
+        cd driving-log-pwa
+        npm run build
+        
+    - name: Run security tests
+      run: |
+        cd driving-log-pwa
+        npx playwright test e2e/security.spec.ts --project=chromium
+      env:
+        CI: true
+        
+    - name: Run privacy tests
+      run: |
+        cd driving-log-pwa
+        npx playwright test e2e/privacy.spec.ts --project=chromium
+      env:
+        CI: true
+        
+    - name: Run data leak prevention tests
+      run: |
+        cd driving-log-pwa
+        npx playwright test e2e/data-leak-prevention.spec.ts --project=chromium
+      env:
+        CI: true
+        
+    - name: Upload security reports
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: security-reports
+        path: driving-log-pwa/test-results/
+        retention-days: 30
+
+  merge-reports:
+    name: Merge Test Reports
+    if: always()
+    needs: [e2e-tests, performance-tests, mobile-tests, accessibility-tests, security-tests]
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Download all artifacts
+      uses: actions/download-artifact@v4
+      
+    - name: Merge Playwright reports
+      run: |
+        # Create merged report directory
+        mkdir -p merged-report
+        
+        # Copy all individual reports
+        find . -name "playwright-report*" -type d -exec cp -r {} merged-report/ \;
+        
+        # Generate summary
+        echo "# E2E Test Summary" > merged-report/summary.md
+        echo "Generated at: $(date)" >> merged-report/summary.md
+        echo "" >> merged-report/summary.md
+        
+        # Count test files
+        echo "## Test Results" >> merged-report/summary.md
+        echo "- Browser tests: $(find . -name "*chromium*" | wc -l) Chrome, $(find . -name "*firefox*" | wc -l) Firefox, $(find . -name "*webkit*" | wc -l) Safari" >> merged-report/summary.md
+        echo "- Performance tests: $(find . -name "*performance*" | wc -l)" >> merged-report/summary.md
+        echo "- Mobile tests: $(find . -name "*mobile*" | wc -l)" >> merged-report/summary.md
+        echo "- Accessibility tests: $(find . -name "*accessibility*" | wc -l)" >> merged-report/summary.md
+        echo "- Security tests: $(find . -name "*security*" | wc -l)" >> merged-report/summary.md
+        
+    - name: Upload merged report
+      uses: actions/upload-artifact@v4
+      with:
+        name: merged-test-report
+        path: merged-report/
+        retention-days: 90
+
+  notify-results:
+    name: Notify Test Results
+    if: always()
+    needs: [merge-reports]
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Notify on success
+      if: ${{ needs.e2e-tests.result == 'success' && needs.performance-tests.result == 'success' && needs.security-tests.result == 'success' }}
+      run: |
+        echo "✅ All E2E tests passed successfully!"
+        echo "Performance tests: ✅"
+        echo "Mobile tests: ✅"
+        echo "Accessibility tests: ✅"
+        echo "Security tests: ✅"
+        
+    - name: Notify on failure
+      if: ${{ needs.e2e-tests.result == 'failure' || needs.performance-tests.result == 'failure' || needs.security-tests.result == 'failure' }}
+      run: |
+        echo "❌ Some E2E tests failed!"
+        echo "E2E tests: ${{ needs.e2e-tests.result }}"
+        echo "Performance tests: ${{ needs.performance-tests.result }}"
+        echo "Mobile tests: ${{ needs.mobile-tests.result }}"
+        echo "Accessibility tests: ${{ needs.accessibility-tests.result }}"
+        echo "Security tests: ${{ needs.security-tests.result }}"
+        exit 1

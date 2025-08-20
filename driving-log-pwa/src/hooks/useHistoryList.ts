@@ -1,24 +1,13 @@
 import { useState, useCallback, useEffect } from 'react';
-import { DrivingLog, DrivingLogStatus } from '../types';
+import { DrivingLog, DrivingLogStatus, HistoryFilters } from '../types';
 import { HistoryController } from '../controllers/HistoryController';
+import { DrivingLogController } from '../controllers/DrivingLogController';
+import { LocationController } from '../controllers/LocationController';
+import { StorageService } from '../services/StorageService';
+import { GPSService } from '../services/gps/GPSService';
 
 // Create interfaces that match our test expectations
-export interface HistoryFilters {
-  dateRange: {
-    start?: Date;
-    end?: Date;
-  };
-  locationSearch?: string;
-  status?: DrivingLogStatus[];
-  distanceRange?: {
-    min?: number;
-    max?: number;
-  };
-  durationRange?: {
-    min?: number;
-    max?: number;
-  };
-}
+// Using HistoryFilters from types/index.ts
 
 export type HistorySortOption = 
   | 'date-desc' | 'date-asc'
@@ -60,11 +49,7 @@ export function useHistoryList(): UseHistoryList {
     loading: false,
     hasMore: false,
     filters: {
-      dateRange: {},
-      locationSearch: undefined,
-      status: undefined,
-      distanceRange: undefined,
-      durationRange: undefined
+      dateRange: undefined
     },
     sortBy: 'date-desc',
     selectedRecords: [],
@@ -72,23 +57,21 @@ export function useHistoryList(): UseHistoryList {
   });
 
   const [currentPage, setCurrentPage] = useState(1);
-  const historyController = new HistoryController(null as any, null as any); // TODO: Inject dependencies
 
   // Load history data
   const loadHistory = useCallback(async () => {
     setState(prev => ({ ...prev, loading: true, error: null }));
     
     try {
+      const { historyController } = await getControllers();
       const response = await historyController.getHistoryList({
-        page: 1,
-        limit: 20,
         filters: state.filters,
-        sortBy: state.sortBy
+        pagination: { page: 1, size: 20 }
       });
 
       setState(prev => ({
         ...prev,
-        records: response.records,
+        records: response.items,
         hasMore: response.hasMore,
         loading: false
       }));
@@ -109,17 +92,16 @@ export function useHistoryList(): UseHistoryList {
     setState(prev => ({ ...prev, loading: true }));
     
     try {
+      const { historyController } = await getControllers();
       const nextPage = currentPage + 1;
       const response = await historyController.getHistoryList({
-        page: nextPage,
-        limit: 20,
         filters: state.filters,
-        sortBy: state.sortBy
+        pagination: { page: nextPage, size: 20 }
       });
 
       setState(prev => ({
         ...prev,
-        records: [...prev.records, ...response.records],
+        records: [...prev.records, ...response.items],
         hasMore: response.hasMore,
         loading: false
       }));
@@ -161,12 +143,9 @@ export function useHistoryList(): UseHistoryList {
   // Delete a single record
   const deleteRecord = useCallback(async (recordId: string) => {
     try {
-      await historyController.deleteRecord(recordId);
-      setState(prev => ({
-        ...prev,
-        records: prev.records.filter(record => record.id !== recordId),
-        selectedRecords: prev.selectedRecords.filter(id => id !== recordId)
-      }));
+      // Note: This should probably use DrivingLogController
+      // await drivingLogController.deleteLog(recordId);
+      throw new Error('Delete functionality needs to be implemented');
     } catch (error) {
       setState(prev => ({
         ...prev,
@@ -178,12 +157,9 @@ export function useHistoryList(): UseHistoryList {
   // Delete multiple records
   const deleteMultipleRecords = useCallback(async (recordIds: string[]) => {
     try {
-      await historyController.deleteMultipleRecords(recordIds);
-      setState(prev => ({
-        ...prev,
-        records: prev.records.filter(record => !recordIds.includes(record.id)),
-        selectedRecords: []
-      }));
+      // Note: This should probably use DrivingLogController
+      // for (const id of recordIds) await drivingLogController.deleteLog(id);
+      throw new Error('Bulk delete functionality needs to be implemented');
     } catch (error) {
       setState(prev => ({
         ...prev,
@@ -195,7 +171,8 @@ export function useHistoryList(): UseHistoryList {
   // Export records
   const exportRecords = useCallback(async (recordIds: string[]) => {
     try {
-      await historyController.exportRecords(recordIds);
+      // Note: Export functionality needs to be implemented
+      throw new Error('Export functionality needs to be implemented');
     } catch (error) {
       setState(prev => ({
         ...prev,
@@ -210,10 +187,10 @@ export function useHistoryList(): UseHistoryList {
     await loadHistory();
   }, [loadHistory]);
 
-  // Reload data when filters or sort options change
+  // Load data on mount
   useEffect(() => {
     loadHistory();
-  }, [state.filters, state.sortBy]);
+  }, []); // 初回のみ実行
 
   return {
     state,
@@ -230,4 +207,23 @@ export function useHistoryList(): UseHistoryList {
       refreshHistory
     }
   };
+}
+
+// Create singleton instances
+let storageService: StorageService | null = null;
+let gpsService: GPSService | null = null;
+let locationController: LocationController | null = null;
+let drivingLogController: DrivingLogController | null = null;
+let historyController: HistoryController | null = null;
+
+async function getControllers() {
+  if (!storageService) {
+    storageService = new StorageService();
+    await storageService.initialize();
+    gpsService = new GPSService();
+    locationController = new LocationController(gpsService, storageService);
+    drivingLogController = new DrivingLogController(locationController, storageService);
+    historyController = new HistoryController(drivingLogController, storageService);
+  }
+  return { historyController: historyController!, drivingLogController: drivingLogController! };
 }

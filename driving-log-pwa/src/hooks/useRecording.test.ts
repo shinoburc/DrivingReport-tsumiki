@@ -3,6 +3,8 @@ import { useRecording } from './useRecording';
 import { DrivingLogController } from '../controllers/DrivingLogController';
 import { LocationController } from '../controllers/LocationController';
 import { LocationType, DrivingLogStatus } from '../types';
+import { DrivingLogModel } from '../models/entities/DrivingLogModel';
+import { LocationModel } from '../models/entities/LocationModel';
 
 // Mock controllers
 jest.mock('../controllers/DrivingLogController');
@@ -12,40 +14,48 @@ const mockDrivingLogController = DrivingLogController as jest.MockedClass<typeof
 const mockLocationController = LocationController as jest.MockedClass<typeof LocationController>;
 
 // Mock data
-const mockCurrentLocation = {
+const mockCurrentLocation = LocationModel.create({
   id: 'loc-current',
   name: '現在地',
   latitude: 35.6812,
   longitude: 139.7671,
   timestamp: new Date(),
   type: LocationType.CURRENT
-};
+});
 
 const mockWaypoint = {
   id: 'wp-001',
-  location: {
+  location: LocationModel.create({
     id: 'loc-start',
     name: '出発地',
     latitude: 35.6580,
     longitude: 139.7016,
     timestamp: new Date(),
     type: LocationType.START
-  },
+  }),
   timestamp: new Date(),
   name: '自宅',
   type: 'start' as const,
   notes: ''
 };
 
-const mockRecordingLog = {
+const mockRecordingLog = DrivingLogModel.create({
   id: 'record-001',
   date: new Date(),
   startTime: new Date(),
+  startLocation: {
+    id: 'loc-start',
+    name: '出発地',
+    latitude: 35.6812,
+    longitude: 139.7671,
+    timestamp: new Date(),
+    type: LocationType.START
+  },
   status: DrivingLogStatus.IN_PROGRESS,
   createdAt: new Date(),
   updatedAt: new Date(),
   waypoints: []
-};
+});
 
 describe('useRecording Hook', () => {
   let mockDrivingLogInstance: jest.Mocked<DrivingLogController>;
@@ -78,8 +88,16 @@ describe('useRecording Hook', () => {
       getLastSaveTime: jest.fn(),
       calculateDistance: jest.fn(),
       calculateDuration: jest.fn(),
-      getTotalDistance: jest.fn()
-    } as jest.Mocked<DrivingLogController>;
+      getTotalDistance: jest.fn(),
+      getCachedLog: jest.fn(),
+      isValidStatusTransition: jest.fn(),
+      getDistanceBetweenPoints: jest.fn(),
+      locationController: {} as any,
+      storageService: {} as any,
+      logs: new Map(),
+      autoSaveConfigs: new Map(),
+      autoSaveTimers: new Map()
+    } as any;
 
     mockLocationInstance = {
       getCurrentLocation: jest.fn(),
@@ -90,15 +108,28 @@ describe('useRecording Hook', () => {
       requestLocationPermission: jest.fn(),
       calculateDistance: jest.fn(),
       getLocationAccuracy: jest.fn(),
-      isHighAccuracy: jest.fn()
-    } as jest.Mocked<LocationController>;
+      isHighAccuracy: jest.fn(),
+      recordManualLocation: jest.fn(),
+      addFavoriteLocation: jest.fn(),
+      getFavoriteLocations: jest.fn(),
+      removeFavoriteLocation: jest.fn(),
+      searchLocations: jest.fn(),
+      getRecentLocations: jest.fn(),
+      isGPSAvailable: jest.fn(),
+      updateLocation: jest.fn(),
+      deleteLocation: jest.fn(),
+      gpsService: {} as any,
+      storageService: {} as any,
+      favoriteLocations: [],
+      loadFavoriteLocations: jest.fn()
+    } as any;
 
     mockDrivingLogController.mockImplementation(() => mockDrivingLogInstance);
     mockLocationController.mockImplementation(() => mockLocationInstance);
 
     // Setup default mock returns
     mockLocationInstance.getCurrentLocation.mockResolvedValue(mockCurrentLocation);
-    mockLocationInstance.isLocationAvailable.mockResolvedValue(true);
+    mockLocationInstance.isLocationAvailable.mockReturnValue(true);
     mockLocationInstance.getLocationAccuracy.mockReturnValue(5.0);
     mockLocationInstance.isHighAccuracy.mockReturnValue(true);
     mockDrivingLogInstance.quickStart.mockResolvedValue(mockRecordingLog);
@@ -219,7 +250,7 @@ describe('useRecording Hook', () => {
     });
 
     it('should complete recording correctly', async () => {
-      const completedLog = { ...mockRecordingLog, status: DrivingLogStatus.COMPLETED };
+      const completedLog = DrivingLogModel.create({ ...mockRecordingLog, status: DrivingLogStatus.COMPLETED });
       mockDrivingLogInstance.completeLog.mockResolvedValue(completedLog);
 
       const { result } = renderHook(() => useRecording());
@@ -272,7 +303,10 @@ describe('useRecording Hook', () => {
 
       // Simulate location update
       const watchCallback = mockLocationInstance.watchLocation.mock.calls[0][0];
-      const newLocation = { ...mockCurrentLocation, latitude: 35.6820 };
+      const newLocation = LocationModel.create({
+        ...mockCurrentLocation,
+        latitude: 35.6820
+      });
 
       act(() => {
         watchCallback(newLocation);
@@ -293,7 +327,10 @@ describe('useRecording Hook', () => {
       mockLocationInstance.isHighAccuracy.mockReturnValue(false);
 
       const watchCallback = mockLocationInstance.watchLocation.mock.calls[0][0];
-      const poorLocation = { ...mockCurrentLocation, accuracy: 100.0 };
+      const poorLocation = LocationModel.create({
+        ...mockCurrentLocation,
+        accuracy: 100.0
+      });
 
       act(() => {
         watchCallback(poorLocation);
@@ -315,9 +352,9 @@ describe('useRecording Hook', () => {
       // Simulate multiple location updates
       const watchCallback = mockLocationInstance.watchLocation.mock.calls[0][0];
       const locations = [
-        { ...mockCurrentLocation, latitude: 35.6810 },
-        { ...mockCurrentLocation, latitude: 35.6820 },
-        { ...mockCurrentLocation, latitude: 35.6830 }
+        LocationModel.create({ ...mockCurrentLocation, latitude: 35.6810 }),
+        LocationModel.create({ ...mockCurrentLocation, latitude: 35.6820 }),
+        LocationModel.create({ ...mockCurrentLocation, latitude: 35.6830 })
       ];
 
       for (const location of locations) {
@@ -547,11 +584,11 @@ describe('useRecording Hook', () => {
       // Simulate rapid location updates
       for (let i = 0; i < 100; i++) {
         act(() => {
-          watchCallback({
+          watchCallback(LocationModel.create({
             ...mockCurrentLocation,
             latitude: 35.6812 + (i * 0.0001),
             timestamp: new Date(Date.now() + i * 1000)
-          });
+          }));
         });
       }
 

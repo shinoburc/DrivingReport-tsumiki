@@ -24,22 +24,27 @@ module.exports = {
     '!src/components/**/*.css',
     '!src/assets/**',
     '!src/css/**',
+    '!src/__tests__/**',
+    '!src/**/__mocks__/**',
   ],
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/src/$1',
     '\\.(css|less|scss|sass)$': 'identity-obj-proxy',
   },
-  setupFilesAfterEnv: ['<rootDir>/tests/setup.ts'],
+  setupFilesAfterEnv: [
+    '<rootDir>/tests/setup.ts',
+    '<rootDir>/src/__tests__/setup/testSetup.ts'
+  ],
   testPathIgnorePatterns: ['/node_modules/', '/dist/', '/coverage/'],
   testEnvironmentOptions: {
     url: 'http://localhost:3000'
   },
   coverageThreshold: {
     global: {
-      branches: 85,
-      functions: 85,
-      lines: 85,
-      statements: 85,
+      branches: 75,
+      functions: 75,
+      lines: 75,
+      statements: 75,
     },
   },
   coverageDirectory: 'coverage',

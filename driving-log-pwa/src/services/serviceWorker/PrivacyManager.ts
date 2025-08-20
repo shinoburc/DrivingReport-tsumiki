@@ -146,7 +146,7 @@ export class PrivacyManager {
     const dataAge = now - data.timestamp;
     
     // Default retention periods by data type
-    const retentionPolicies = {
+    const retentionPolicies: Record<string, number> = {
       'location-history': 30 * 24 * 60 * 60 * 1000, // 30 days
       'driving-log': 365 * 24 * 60 * 60 * 1000, // 1 year
       'settings': Infinity, // Keep indefinitely
@@ -377,7 +377,7 @@ export class PrivacyManager {
     const bytes = new Uint8Array(buffer);
     let binary = '';
     for (let i = 0; i < bytes.length; i++) {
-      binary += String.fromCharCode(bytes[i]);
+      binary += String.fromCharCode(bytes[i]!);
     }
     return btoa(binary);
   }

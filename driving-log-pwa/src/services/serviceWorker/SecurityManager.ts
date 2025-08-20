@@ -80,7 +80,7 @@ export class SecurityManager {
     ];
 
     // Check headers
-    for (const [name, value] of request.headers.entries()) {
+    for (const [_name, value] of request.headers.entries()) {
       if (suspiciousPatterns.some(pattern => pattern.test(value))) {
         return false;
       }

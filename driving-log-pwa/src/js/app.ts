@@ -1,6 +1,18 @@
 // Main application entry point
+import React from 'react';
+import { createRoot } from 'react-dom/client';
+import App from '../App';
 
-// Initialize the application
+declare global {
+  interface Window {
+    drivingLogPWA: {
+      version: string;
+      initialized: boolean;
+    };
+  }
+}
+
+// Initialize the React application
 export function initializeApp(): void {
   console.log('Driving Log PWA initializing...');
 
@@ -22,6 +34,13 @@ export function initializeApp(): void {
           console.error('Service Worker registration failed:', error);
         });
     });
+  }
+
+  // Initialize React app
+  const container = document.getElementById('app');
+  if (container) {
+    const root = createRoot(container);
+    root.render(React.createElement(App));
   }
 
   // Mark as initialized

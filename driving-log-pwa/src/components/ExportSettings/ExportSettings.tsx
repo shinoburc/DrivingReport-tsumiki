@@ -289,10 +289,10 @@ export function ExportSettings({ settings, onSettingChange }: ExportSettingsProp
                 <div className="preview-item">
                   <span className="preview-label">期間:</span>
                   <span className="preview-value">
-                    {settings.defaultExportPeriod === 'month' && '過去1ヶ月'}
-                    {settings.defaultExportPeriod === 'quarter' && '過去3ヶ月'}
-                    {settings.defaultExportPeriod === 'year' && '過去1年'}
-                    {settings.defaultExportPeriod === 'all' && '全期間'}
+                    {settings.defaultExportPeriod === 30 && '過去30日'}
+                    {settings.defaultExportPeriod === 90 && '過去90日'}
+                    {settings.defaultExportPeriod === 365 && '過去1年'}
+                    {settings.defaultExportPeriod === 0 && '全期間'}
                   </span>
                 </div>
                 <div className="preview-item">

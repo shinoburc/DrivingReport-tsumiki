@@ -403,10 +403,17 @@ export class StorageService {
     const defaultSettings: AppSettings = {
       language: 'ja',
       gpsTimeout: 10,
+      gpsAccuracyThreshold: 50,
       autoExportEnabled: false,
       exportFormat: ExportFormat.CSV,
+      defaultExportPeriod: 30,
+      exportPrivacyLevel: 'full',
+      autoExportFrequency: 'monthly',
       favoriteLocations: [],
-      theme: 'auto'
+      theme: 'auto',
+      notificationsEnabled: true,
+      offlineModeEnabled: true,
+      autoClearDataEnabled: false
     };
 
     return defaultSettings;

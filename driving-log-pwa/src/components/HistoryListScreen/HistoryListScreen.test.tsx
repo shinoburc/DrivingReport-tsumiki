@@ -16,6 +16,14 @@ const mockDrivingLogs = [
     startTime: new Date('2024-01-15T09:00:00'),
     endTime: new Date('2024-01-15T10:30:00'),
     status: DrivingLogStatus.COMPLETED,
+    startLocation: {
+      id: 'loc-start',
+      name: '自宅',
+      latitude: 35.6580,
+      longitude: 139.7016,
+      timestamp: new Date('2024-01-15T09:00:00'),
+      type: LocationType.START
+    },
     createdAt: new Date('2024-01-15T09:00:00'),
     updatedAt: new Date('2024-01-15T10:30:00'),
     waypoints: [
@@ -43,6 +51,14 @@ const mockDrivingLogs = [
     startTime: new Date('2024-01-14T18:00:00'),
     endTime: undefined,
     status: DrivingLogStatus.IN_PROGRESS,
+    startLocation: {
+      id: 'loc-start-2',
+      name: '出発地点',
+      latitude: 35.6900,
+      longitude: 139.7400,
+      timestamp: new Date('2024-01-14T18:00:00'),
+      type: LocationType.START
+    },
     createdAt: new Date('2024-01-14T18:00:00'),
     updatedAt: new Date('2024-01-14T18:00:00'),
     waypoints: [

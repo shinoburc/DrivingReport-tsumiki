@@ -15,6 +15,14 @@ const mockDetailRecord = {
   startTime: new Date('2024-01-15T09:00:00'),
   endTime: new Date('2024-01-15T10:30:00'),
   status: DrivingLogStatus.COMPLETED,
+  startLocation: {
+    id: 'loc-start',
+    name: '自宅',
+    latitude: 35.6580,
+    longitude: 139.7016,
+    timestamp: new Date('2024-01-15T09:00:00'),
+    type: LocationType.START
+  },
   createdAt: new Date('2024-01-15T09:00:00'),
   updatedAt: new Date('2024-01-15T10:30:00'),
   waypoints: [

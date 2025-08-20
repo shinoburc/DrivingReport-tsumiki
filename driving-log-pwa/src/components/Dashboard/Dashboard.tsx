@@ -6,9 +6,10 @@ export interface DashboardProps {
   className?: string;
   onRecordStart?: () => void;
   onNavigate?: (route: string) => void;
+  refreshKey?: number;
 }
 
-export function Dashboard({ className, onRecordStart, onNavigate }: DashboardProps) {
+export function Dashboard({ className, onRecordStart, onNavigate, refreshKey }: DashboardProps) {
   const { state, actions } = useDashboard();
   const [responsiveClass, setResponsiveClass] = useState('');
 
@@ -30,9 +31,21 @@ export function Dashboard({ className, onRecordStart, onNavigate }: DashboardPro
     return () => window.removeEventListener('resize', updateResponsiveClass);
   }, []);
 
+  // Refresh data when component becomes visible
+  useEffect(() => {
+    if (refreshKey > 0) {
+      actions.refreshData();
+    }
+  }, [refreshKey]);
+
   const handleStartRecording = async () => {
     await actions.startRecording();
     onRecordStart?.();
+  };
+
+  const handleStopRecording = () => {
+    // Navigate to recording screen for proper recording management
+    onNavigate?.('/recording');
   };
 
   const handleNavigate = (route: string) => {
@@ -72,7 +85,7 @@ export function Dashboard({ className, onRecordStart, onNavigate }: DashboardPro
             <button 
               role="button" 
               aria-label="記録停止"
-              onClick={() => console.log('Stop recording')}
+              onClick={handleStopRecording}
             >
               記録停止
             </button>

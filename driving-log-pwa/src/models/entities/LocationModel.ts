@@ -147,7 +147,7 @@ export class LocationModel extends BaseModel implements Location {
     return degrees * GEO_CONSTANTS.DEGREES_TO_RADIANS;
   }
 
-  validate(): ValidationResult {
+  override validate(): ValidationResult {
     return ModelValidator.validateLocation(this);
   }
 
@@ -166,7 +166,7 @@ export class LocationModel extends BaseModel implements Location {
     };
   }
 
-  static fromJSON(data: Record<string, any>): LocationModel {
+  static override fromJSON(data: Record<string, any>): LocationModel {
     return LocationModel.create({
       id: data.id,
       name: data.name,

@@ -41,21 +41,6 @@ export interface Location {
   imageDataUrl?: string;         // 写真（Base64）
 }
 
-/**
- * よく使う地点エンティティ (Service Worker統合用)
- */
-export interface FavoriteLocation {
-  id: string;                    // UUID
-  name: string;                  // 地点名（必須）
-  address?: string;              // 住所
-  latitude?: number;             // 緯度
-  longitude?: number;            // 経度
-  type: 'home' | 'work' | 'other' | 'fuel' | 'rest' | 'parking' | 'current'; // 地点タイプ
-  icon?: string;                 // アイコン絵文字
-  color?: string;                // 表示色
-  createdAt: Date;              // 作成日時
-  usageCount: number;           // 使用回数
-}
 
 /**
  * アプリケーション設定
@@ -66,18 +51,21 @@ export interface AppSettings {
   gpsTimeout: number;            // GPS取得タイムアウト（秒）
   gpsAccuracyThreshold: number;  // GPS精度閾値（メートル）
   exportFormat: ExportFormat;    // エクスポート形式
-  defaultExportPeriod: 'month' | 'quarter' | 'year' | 'all'; // デフォルトエクスポート期間
+  defaultExportPeriod: number;   // デフォルトエクスポート期間（日数）
   exportPrivacyLevel: 'full' | 'approximate' | 'minimal'; // エクスポートプライバシーレベル
   autoExportEnabled: boolean;    // 自動エクスポート有効化
   autoExportFrequency: 'weekly' | 'monthly' | 'manual'; // 自動エクスポート頻度
-  compactMode: boolean;          // コンパクトモード
-  showTutorial: boolean;         // チュートリアル表示
   favoriteLocations: FavoriteLocation[]; // よく使う地点
+  notificationsEnabled: boolean; // 通知有効化
+  offlineModeEnabled: boolean;   // オフラインモード有効化
+  autoClearDataEnabled: boolean; // 自動データクリア有効化
+  compactMode?: boolean;         // コンパクトモード
+  showTutorial?: boolean;        // チュートリアル表示
+  firstLaunchDate?: Date;        // 初回起動日
+  appVersion?: string;           // アプリバージョン
+  lastBackupDate?: Date;         // 最終バックアップ日
   driverName?: string;           // ドライバー名
   vehicleInfo?: VehicleInfo;     // 車両情報
-  firstLaunchDate: Date;         // 初回起動日
-  appVersion: string;            // アプリバージョン
-  lastBackupDate?: Date;         // 最終バックアップ日
 }
 
 /**
@@ -119,7 +107,10 @@ export enum LocationType {
   FUEL = 'FUEL',                 // 給油地点
   REST = 'REST',                 // 休憩地点
   PARKING = 'PARKING',           // 駐車地点
-  CURRENT = 'CURRENT'            // 現在地点
+  CURRENT = 'CURRENT',           // 現在地点
+  HOME = 'HOME',                 // 自宅
+  WORK = 'WORK',                 // 職場
+  OTHER = 'OTHER'                // その他
 }
 
 /**
@@ -397,6 +388,9 @@ export interface FavoriteLocation {
   usageCount: number;         // 使用回数
   lastUsed?: Date;           // 最終使用日時
   isDefault?: boolean;       // デフォルト地点フラグ
+  icon?: string;             // アイコン
+  color?: string;            // 色
+  createdAt?: Date;          // 作成日時
 }
 
 /**
@@ -1170,8 +1164,11 @@ export interface ExportSettingsValidation {
 /**
  * Web Worker メッセージ（エクスポート用）
  */
-export interface ExportWorkerMessage extends WorkerMessage {
+export interface ExportWorkerMessage {
+  id: string;
   type: 'export-start' | 'export-progress' | 'export-complete' | 'export-error' | 'export-cancel';
+  data?: any;
+  error?: string;
   payload?: {
     settings?: ExportSettings;
     data?: any[];

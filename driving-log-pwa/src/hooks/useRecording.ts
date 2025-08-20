@@ -1,8 +1,10 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { DrivingLog, DrivingLogStatus, Location, LocationType } from '../types';
+import { DrivingLog, DrivingLogStatus, LocationType } from '../types';
+import { LocationModel } from '../models/entities/LocationModel';
 import { DrivingLogController } from '../controllers/DrivingLogController';
 import { LocationController } from '../controllers/LocationController';
 import { StorageService } from '../services/StorageService';
+import { GPSService } from '../services/gps/GPSService';
 import { TIMER_INTERVAL, AUTO_WAYPOINT_DISTANCE_THRESHOLD, GPS_SIGNAL_THRESHOLDS, WAYPOINT_TYPE_LABELS } from '../constants/recording';
 
 export interface GPSStatus {
@@ -14,7 +16,7 @@ export interface GPSStatus {
 
 export interface Waypoint {
   id: string;
-  location: Location;
+  location: LocationModel;
   timestamp: Date;
   name?: string;
   type: WaypointType;
@@ -43,7 +45,7 @@ export interface RecordingState {
   isPaused: boolean;
   startTime?: Date;
   elapsedTime: number;
-  currentLocation?: Location;
+  currentLocation?: LocationModel;
   gpsStatus: GPSStatus;
   waypoints: Waypoint[];
   statistics: RecordingStatistics;
@@ -72,10 +74,12 @@ let storageService: StorageService | null = null;
 let locationController: LocationController | null = null;
 let drivingLogController: DrivingLogController | null = null;
 
-function getControllers() {
+async function getControllers() {
   if (!storageService) {
     storageService = new StorageService();
-    locationController = new LocationController();
+    await storageService.initialize();
+    const gpsService = new GPSService();
+    locationController = new LocationController(gpsService, storageService);
     drivingLogController = new DrivingLogController(locationController, storageService);
   }
   return { drivingLogController: drivingLogController!, locationController: locationController! };
@@ -108,7 +112,7 @@ export function useRecording(): UseRecording {
   const currentRecordId = useRef<string | null>(null);
   const locationWatchId = useRef<string | null>(null);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
-  const lastLocation = useRef<Location | null>(null);
+  const lastLocation = useRef<LocationModel | null>(null);
   const pauseStartTime = useRef<Date | null>(null);
   const totalPauseTime = useRef<number>(0);
 
@@ -152,7 +156,6 @@ export function useRecording(): UseRecording {
 
   // Calculate statistics
   const calculateStatistics = useCallback((waypoints: Waypoint[], elapsedTime: number): RecordingStatistics => {
-    const { drivingLogController } = getControllers();
     
     if (waypoints.length < 2) {
       return {
@@ -172,7 +175,7 @@ export function useRecording(): UseRecording {
       const prevWaypoint = waypoints[i - 1];
       const currentWaypoint = waypoints[i];
       
-      const distance = drivingLogController.calculateDistance(
+      const distance = locationController.calculateDistance(
         prevWaypoint.location,
         currentWaypoint.location
       );
@@ -200,11 +203,10 @@ export function useRecording(): UseRecording {
   }, []);
 
   // Handle location updates
-  const handleLocationUpdate = useCallback((location: Location) => {
-    const { locationController } = getControllers();
+  const handleLocationUpdate = useCallback((location: LocationModel) => {
     
     setState(prev => {
-      const accuracy = locationController.getLocationAccuracy();
+      const accuracy = location.accuracy || 0;
       const signal = getGPSSignal(accuracy);
       
       const newGpsStatus: GPSStatus = {
@@ -219,7 +221,7 @@ export function useRecording(): UseRecording {
       if (prev.isRecording && !prev.isPaused) {
         // Add automatic waypoint for significant location changes
         if (!lastLocation.current || 
-            locationController.calculateDistance(lastLocation.current, location) > AUTO_WAYPOINT_DISTANCE_THRESHOLD) {
+            locationController!.calculateDistance(lastLocation.current, location) > AUTO_WAYPOINT_DISTANCE_THRESHOLD) {
           const waypoint: Waypoint = {
             id: `wp-${Date.now()}`,
             location,
@@ -246,7 +248,7 @@ export function useRecording(): UseRecording {
   // Start recording
   const startRecording = useCallback(async () => {
     try {
-      const { drivingLogController, locationController } = getControllers();
+      const { drivingLogController, locationController } = await getControllers();
       
       // Check GPS availability
       const isAvailable = await locationController.isLocationAvailable();
@@ -271,7 +273,7 @@ export function useRecording(): UseRecording {
       const currentLocation = await locationController.getCurrentLocation();
       
       // Start location monitoring
-      locationWatchId.current = locationController.watchLocation(handleLocationUpdate);
+      locationController.watchLocation(handleLocationUpdate);
       
       // Initialize with start waypoint
       const startWaypoint: Waypoint = {
@@ -318,8 +320,8 @@ export function useRecording(): UseRecording {
   }, [handleLocationUpdate, startTimer]);
 
   // Pause recording
-  const pauseRecording = useCallback(() => {
-    const { locationController } = getControllers();
+  const pauseRecording = useCallback(async () => {
+    const { locationController } = await getControllers();
     
     if (locationWatchId.current) {
       locationController.stopWatchingLocation(locationWatchId.current);
@@ -336,8 +338,8 @@ export function useRecording(): UseRecording {
   }, [stopTimer]);
 
   // Resume recording
-  const resumeRecording = useCallback(() => {
-    const { locationController } = getControllers();
+  const resumeRecording = useCallback(async () => {
+    const { locationController } = await getControllers();
     
     // Calculate pause time
     if (pauseStartTime.current) {
@@ -347,7 +349,7 @@ export function useRecording(): UseRecording {
     }
     
     // Resume location monitoring
-    locationWatchId.current = locationController.watchLocation(handleLocationUpdate);
+    locationController.watchLocation(handleLocationUpdate);
     
     setState(prev => ({
       ...prev,
@@ -359,7 +361,7 @@ export function useRecording(): UseRecording {
 
   // Complete recording
   const completeRecording = useCallback(async (): Promise<DrivingLog> => {
-    const { drivingLogController, locationController } = getControllers();
+    const { drivingLogController, locationController } = await getControllers();
     
     if (!currentRecordId.current) {
       throw new Error('No active recording found');
@@ -373,8 +375,11 @@ export function useRecording(): UseRecording {
       }
       stopTimer();
 
-      // Complete the recording
-      const completedLog = await drivingLogController.completeLog(currentRecordId.current);
+      // Get current location as end point
+      const currentLocation = await locationController.getCurrentLocation();
+      
+      // Complete the recording with end location
+      const completedLog = await drivingLogController.quickComplete(currentRecordId.current, currentLocation);
       
       // Reset state
       setState(prev => ({
@@ -415,8 +420,8 @@ export function useRecording(): UseRecording {
   }, [stopTimer]);
 
   // Cancel recording
-  const cancelRecording = useCallback(() => {
-    const { drivingLogController, locationController } = getControllers();
+  const cancelRecording = useCallback(async () => {
+    const { drivingLogController, locationController } = await getControllers();
     
     if (locationWatchId.current) {
       locationController.stopWatchingLocation(locationWatchId.current);
@@ -453,7 +458,7 @@ export function useRecording(): UseRecording {
 
   // Add waypoint
   const addWaypoint = useCallback(async (name?: string, type: WaypointType = 'other') => {
-    const { drivingLogController, locationController } = getControllers();
+    const { drivingLogController, locationController } = await getControllers();
     
     if (!state.isRecording || !currentRecordId.current) {
       return;
@@ -471,7 +476,7 @@ export function useRecording(): UseRecording {
         notes: ''
       };
 
-      await drivingLogController.quickAddWaypoint(waypoint);
+      await drivingLogController.quickAddWaypoint(currentRecordId.current, currentLocation);
 
       setState(prev => ({
         ...prev,
@@ -519,9 +524,8 @@ export function useRecording(): UseRecording {
 
   // Initialize GPS status on mount
   useEffect(() => {
-    const { locationController } = getControllers();
-    
     const initializeGPS = async () => {
+      const { locationController } = await getControllers();
       try {
         const isAvailable = await locationController.isLocationAvailable();
         setState(prev => ({
@@ -549,12 +553,13 @@ export function useRecording(): UseRecording {
   // Cleanup on unmount
   useEffect(() => {
     return () => {
-      const { locationController } = getControllers();
+      getControllers().then(({ locationController }) => {
       
-      if (locationWatchId.current) {
-        locationController.stopWatchingLocation(locationWatchId.current);
-      }
-      stopTimer();
+        if (locationWatchId.current) {
+          locationController.stopWatchingLocation(locationWatchId.current);
+        }
+        stopTimer();
+      });
     };
   }, [stopTimer]);
 

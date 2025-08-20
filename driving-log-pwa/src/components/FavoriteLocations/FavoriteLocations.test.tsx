@@ -1,7 +1,7 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { FavoriteLocations } from './FavoriteLocations';
-import { FavoriteLocation } from '../../types';
+import { FavoriteLocation, LocationType } from '../../types';
 
 // Mock geolocation
 const mockGeolocation = {
@@ -19,7 +19,8 @@ describe('FavoriteLocations', () => {
       address: '東京都渋谷区1-1-1',
       latitude: 35.6762,
       longitude: 139.6503,
-      type: 'home',
+      type: LocationType.HOME,
+      timestamp: new Date('2024-01-01'),
       icon: '🏠',
       color: '#4CAF50',
       createdAt: new Date('2024-01-01'),
@@ -31,7 +32,8 @@ describe('FavoriteLocations', () => {
       address: '東京都新宿区2-2-2',
       latitude: 35.6895,
       longitude: 139.6917,
-      type: 'work',
+      type: LocationType.WORK,
+      timestamp: new Date('2024-01-02'),
       icon: '🏢',
       color: '#2196F3',
       createdAt: new Date('2024-01-02'),
@@ -43,7 +45,8 @@ describe('FavoriteLocations', () => {
       address: '東京都港区3-3-3',
       latitude: 35.6584,
       longitude: 139.7329,
-      type: 'other',
+      type: LocationType.OTHER,
+      timestamp: new Date('2024-01-03'),
       icon: '🏪',
       color: '#FF9800',
       createdAt: new Date('2024-01-03'),
@@ -153,7 +156,8 @@ describe('FavoriteLocations', () => {
         address: `Address ${i}`,
         latitude: 35.6762 + (i * 0.001),
         longitude: 139.6503 + (i * 0.001),
-        type: 'other' as const,
+        type: LocationType.OTHER,
+        timestamp: new Date(2024, 0, i + 1),
         icon: '📍',
         color: '#757575',
         createdAt: new Date(2024, 0, i + 1),

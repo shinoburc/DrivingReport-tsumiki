@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useEffect } from 'react';
-import { HistoryFilters } from '../../hooks/useHistoryList';
+import { HistoryFilters } from '../../types';
 import { DrivingLogStatus } from '../../types';
 import { useResponsiveLayout, getResponsiveClassName, isMobile } from '../../utils/responsive';
 import { createButtonProps } from '../../utils/accessibility';
@@ -26,7 +26,7 @@ export function HistoryFilter({ filters, onFiltersChange, onReset }: HistoryFilt
     const value = e.target.value;
     onFiltersChange({
       ...filters,
-      locationSearch: value || undefined
+      locations: value ? [value] : undefined
     });
   }, [filters, onFiltersChange]);
 
@@ -43,8 +43,8 @@ export function HistoryFilter({ filters, onFiltersChange, onReset }: HistoryFilt
     onFiltersChange({
       ...filters,
       dateRange: {
-        ...filters.dateRange,
-        start: value ? new Date(value) : undefined
+        startDate: value ? new Date(value) : new Date(),
+        endDate: filters.dateRange?.endDate || new Date()
       }
     });
   }, [filters, onFiltersChange]);
@@ -54,8 +54,8 @@ export function HistoryFilter({ filters, onFiltersChange, onReset }: HistoryFilt
     onFiltersChange({
       ...filters,
       dateRange: {
-        ...filters.dateRange,
-        end: value ? new Date(value) : undefined
+        startDate: filters.dateRange?.startDate || new Date(),
+        endDate: value ? new Date(value) : new Date()
       }
     });
   }, [filters, onFiltersChange]);
@@ -88,8 +88,8 @@ export function HistoryFilter({ filters, onFiltersChange, onReset }: HistoryFilt
 
   const getActiveFilterCount = () => {
     let count = 0;
-    if (filters.dateRange.start || filters.dateRange.end) count++;
-    if (filters.locationSearch) count++;
+    if (filters.dateRange?.startDate || filters.dateRange?.endDate) count++;
+    if (filters.locations?.length) count++;
     if (filters.status?.length) count++;
     if (filters.distanceRange) count++;
     return count;
@@ -127,7 +127,7 @@ export function HistoryFilter({ filters, onFiltersChange, onReset }: HistoryFilt
             id="location-search"
             data-testid="location-search-input"
             type="text"
-            value={filters.locationSearch || ''}
+            value={filters.locations?.[0] || ''}
             onChange={handleLocationSearchChange}
             placeholder="地点名で検索"
             aria-describedby="location-search-help"
@@ -143,7 +143,7 @@ export function HistoryFilter({ filters, onFiltersChange, onReset }: HistoryFilt
             id="start-date"
             data-testid="start-date-input"
             type="date"
-            value={filters.dateRange.start?.toISOString().split('T')[0] || ''}
+            value={filters.dateRange?.startDate?.toISOString().split('T')[0] || ''}
             onChange={handleStartDateChange}
             tabIndex={0}
           />
@@ -155,7 +155,7 @@ export function HistoryFilter({ filters, onFiltersChange, onReset }: HistoryFilt
             id="end-date"
             data-testid="end-date-input"
             type="date"
-            value={filters.dateRange.end?.toISOString().split('T')[0] || ''}
+            value={filters.dateRange?.endDate?.toISOString().split('T')[0] || ''}
             onChange={handleEndDateChange}
             tabIndex={0}
           />
@@ -261,7 +261,7 @@ export function HistoryFilter({ filters, onFiltersChange, onReset }: HistoryFilt
               tomorrow.setDate(today.getDate() + 1);
               onFiltersChange({
                 ...filters,
-                dateRange: { start: today, end: tomorrow }
+                dateRange: { startDate: today, endDate: tomorrow }
               });
             }}
             className="preset-button"

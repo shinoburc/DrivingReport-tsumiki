@@ -51,7 +51,9 @@ export class DrivingLogController implements IDrivingLogController {
         id: 'temp-start',
         name: '開始地点',
         latitude: 0,
-        longitude: 0
+        longitude: 0,
+        timestamp: new Date(),
+        type: LocationType.START
       },
       waypoints: [],
       status: DrivingLogStatus.IN_PROGRESS,
@@ -64,7 +66,7 @@ export class DrivingLogController implements IDrivingLogController {
     const log = DrivingLogModel.create(logData);
 
     // ストレージに保存
-    await this.storageService.save('drivingLogs', log);
+    await this.storageService.createDrivingLog(log);
     this.logs.set(log.id, log);
 
     return log;
@@ -74,45 +76,57 @@ export class DrivingLogController implements IDrivingLogController {
    * 記録の取得
    */
   async getLog(logId: string): Promise<DrivingLogModel | null> {
-    const log = await this.storageService.get('drivingLogs', logId);
-    if (log) {
-      this.logs.set(logId, log);
+    // まずメモリキャッシュから確認
+    if (this.logs.has(logId)) {
+      return this.logs.get(logId)!;
     }
-    return log;
+    
+    // ストレージから取得
+    const log = await this.storageService.getDrivingLog(logId);
+    if (log) {
+      const logModel = DrivingLogModel.fromStorageFormat(log);
+      this.logs.set(logId, logModel);
+      return logModel;
+    }
+    return null;
   }
 
   /**
    * アクティブな記録の取得
    */
   async getActiveLogs(): Promise<DrivingLogModel[]> {
-    const allLogs = await this.storageService.getAll('drivingLogs') || [];
-    return allLogs.filter(log => log.status === DrivingLogStatus.IN_PROGRESS);
+    const allLogs = await this.storageService.queryDrivingLogs() || [];
+    return allLogs
+      .filter(log => log.status === DrivingLogStatus.IN_PROGRESS)
+      .map(log => DrivingLogModel.fromStorageFormat(log));
   }
 
   /**
    * すべての記録を取得
    */
   async getAllLogs(options?: QueryOptions): Promise<DrivingLogModel[]> {
-    let logs = await this.storageService.getAll('drivingLogs') || [];
+    let logs = await this.storageService.queryDrivingLogs() || [];
+    const logModels = logs.map(log => DrivingLogModel.fromStorageFormat(log));
 
     // フィルタリング
+    let filteredModels = logModels;
     if (options) {
       if (options.startDate) {
-        logs = logs.filter(log => new Date(log.date) >= options.startDate!);
+        filteredModels = filteredModels.filter(log => new Date(log.date) >= options.startDate!);
       }
       if (options.endDate) {
-        logs = logs.filter(log => new Date(log.date) <= options.endDate!);
+        filteredModels = filteredModels.filter(log => new Date(log.date) <= options.endDate!);
       }
       if (options.status) {
-        logs = logs.filter(log => log.status === options.status);
+        filteredModels = filteredModels.filter(log => log.status === options.status);
       }
       if (!options.includeDeleted) {
-        logs = logs.filter(log => !(log as any).deletedAt);
+        filteredModels = filteredModels.filter(log => !(log as any).deletedAt);
       }
 
       // ソート
       if (options.sortBy) {
-        logs.sort((a, b) => {
+        filteredModels.sort((a, b) => {
           let comparison = 0;
           switch (options.sortBy) {
             case 'date':
@@ -131,11 +145,11 @@ export class DrivingLogController implements IDrivingLogController {
 
       // ページネーション
       if (options.offset !== undefined && options.limit !== undefined) {
-        logs = logs.slice(options.offset, options.offset + options.limit);
+        filteredModels = filteredModels.slice(options.offset, options.offset + options.limit);
       }
     }
 
-    return logs;
+    return filteredModels;
   }
 
   /**
@@ -157,8 +171,14 @@ export class DrivingLogController implements IDrivingLogController {
     });
 
     // ストレージに保存
-    await this.storageService.save('drivingLogs', updated);
-    this.logs.set(logId, updated);
+    try {
+      await this.storageService.updateDrivingLog(logId, updated);
+      this.logs.set(logId, updated);
+    } catch (error) {
+      console.error('Failed to update log in storage:', error);
+      // メモリキャッシュには保存して続行
+      this.logs.set(logId, updated);
+    }
 
     // 未保存フラグを立てる
     const autoSaveConfig = this.autoSaveConfigs.get(logId);
@@ -178,10 +198,7 @@ export class DrivingLogController implements IDrivingLogController {
       await this.updateLog(logId, { deletedAt: new Date() } as any);
     } else {
       // 物理削除
-      const success = await this.storageService.delete('drivingLogs', logId);
-      if (!success) {
-        throw new Error('記録の削除に失敗しました');
-      }
+      await this.storageService.deleteDrivingLog(logId);
       this.logs.delete(logId);
     }
   }
@@ -200,7 +217,9 @@ export class DrivingLogController implements IDrivingLogController {
       name: location.name,
       latitude: location.latitude,
       longitude: location.longitude,
-      address: location.address
+      address: location.address,
+      timestamp: new Date(),
+      type: type
     };
 
     let updates: Partial<DrivingLog> = {};
@@ -249,7 +268,9 @@ export class DrivingLogController implements IDrivingLogController {
         name: location.name || '出発地点',
         latitude: location.latitude,
         longitude: location.longitude,
-        address: location.address
+        address: location.address,
+        timestamp: new Date(),
+        type: LocationType.START
       },
       startTime: new Date()
     });
@@ -386,7 +407,7 @@ export class DrivingLogController implements IDrivingLogController {
       throw new Error('指定された記録が見つかりません');
     }
 
-    await this.storageService.save('drivingLogs', log);
+    await this.storageService.createDrivingLog(log);
 
     const config = this.autoSaveConfigs.get(logId);
     if (config) {
@@ -399,8 +420,10 @@ export class DrivingLogController implements IDrivingLogController {
    * 進行中記録の復旧
    */
   async recoverInProgressLogs(): Promise<DrivingLogModel[]> {
-    const allLogs = await this.storageService.getAll('drivingLogs') || [];
-    const inProgressLogs = allLogs.filter(log => log.status === DrivingLogStatus.IN_PROGRESS);
+    const allLogs = await this.storageService.queryDrivingLogs() || [];
+    const inProgressLogs = allLogs
+      .filter(log => log.status === DrivingLogStatus.IN_PROGRESS)
+      .map(log => DrivingLogModel.fromStorageFormat(log));
     
     // キャッシュに保存
     inProgressLogs.forEach(log => {

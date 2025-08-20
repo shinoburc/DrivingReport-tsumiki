@@ -45,8 +45,8 @@ export function HistoryListScreen({
   // Render empty state
   const renderEmptyState = () => {
     const hasActiveFilters = Boolean(
-      state.filters.dateRange.start || 
-      state.filters.locationSearch ||
+      state.filters.dateRange?.startDate || 
+      state.filters.locations?.length ||
       state.filters.status?.length ||
       state.filters.distanceRange ||
       state.filters.durationRange
@@ -60,8 +60,8 @@ export function HistoryListScreen({
           <p>条件を変更して再度お試しください</p>
           <button 
             onClick={() => actions.setFilters({
-              dateRange: {},
-              locationSearch: undefined,
+              dateRange: { startDate: new Date(), endDate: new Date() },
+              locations: undefined,
               status: undefined,
               distanceRange: undefined,
               durationRange: undefined
@@ -127,8 +127,8 @@ export function HistoryListScreen({
         filters={state.filters}
         onFiltersChange={actions.setFilters}
         onReset={() => actions.setFilters({
-          dateRange: {},
-          locationSearch: undefined,
+          dateRange: { startDate: new Date(), endDate: new Date() },
+          locations: undefined,
           status: undefined,
           distanceRange: undefined,
           durationRange: undefined

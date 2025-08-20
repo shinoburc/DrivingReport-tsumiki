@@ -20,13 +20,14 @@ describe('SettingsScreen Accessibility', () => {
     gpsTimeout: 30,
     gpsAccuracyThreshold: 50,
     exportFormat: ExportFormat.CSV,
-    defaultExportPeriod: 'month',
+    defaultExportPeriod: 30,
     exportPrivacyLevel: 'full',
     autoExportEnabled: false,
     autoExportFrequency: 'monthly',
     compactMode: false,
     showTutorial: true,
     favoriteLocations: [],
+    notificationsEnabled: true,    offlineModeEnabled: true,    autoClearDataEnabled: false,
     firstLaunchDate: new Date('2024-01-01'),
     appVersion: '1.0.0',
   };
@@ -242,7 +243,7 @@ describe('SettingsScreen Accessibility', () => {
       render(<SettingsScreen />);
 
       // Required fields should be marked
-      const requiredInputs = screen.getAllByRole('textbox', { required: true });
+      const requiredInputs = screen.getAllByRole('textbox', { name: /必須/ });
       requiredInputs.forEach(input => {
         expect(input).toHaveAttribute('aria-required', 'true');
         expect(input).toHaveAccessibleDescription(/必須/);

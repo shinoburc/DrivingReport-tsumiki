@@ -160,7 +160,7 @@ class App {
         this.loadExport();
         break;
       case '/settings':
-        this.loadSettings();
+        this.loadSettingsView();
         break;
       default:
         this.load404();
@@ -220,7 +220,7 @@ class App {
     `;
   }
 
-  private loadSettings(): void {
+  private loadSettingsView(): void {
     const mainContent = document.getElementById('main-content');
     if (!mainContent) return;
     
@@ -309,10 +309,17 @@ class App {
         this.settings = {
           language: 'ja',
           gpsTimeout: 10,
+          gpsAccuracyThreshold: 50,
           autoExportEnabled: false,
           exportFormat: 'CSV' as any,
+          defaultExportPeriod: 30,
+          exportPrivacyLevel: 'full',
+          autoExportFrequency: 'monthly',
           favoriteLocations: [],
-          theme: 'auto'
+          theme: 'auto',
+          notificationsEnabled: true,
+          offlineModeEnabled: true,
+          autoClearDataEnabled: false
         };
       }
     } catch (error) {

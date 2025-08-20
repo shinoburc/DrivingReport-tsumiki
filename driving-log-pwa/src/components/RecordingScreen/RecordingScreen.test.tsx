@@ -3,31 +3,32 @@ import '@testing-library/jest-dom';
 import { RecordingScreen } from './RecordingScreen';
 import { useRecording } from '../../hooks/useRecording';
 import { DrivingLogStatus, LocationType } from '../../types';
+import { LocationModel } from '../../models/entities/LocationModel';
 
 // Mock the useRecording hook
 jest.mock('../../hooks/useRecording');
 const mockUseRecording = useRecording as jest.MockedFunction<typeof useRecording>;
 
 // Mock data
-const mockCurrentLocation = {
+const mockCurrentLocation = LocationModel.create({
   id: 'loc-current',
   name: '現在地',
   latitude: 35.6812,
   longitude: 139.7671,
   timestamp: new Date(),
   type: LocationType.CURRENT
-};
+});
 
 const mockWaypoint = {
   id: 'wp-001',
-  location: {
+  location: LocationModel.create({
     id: 'loc-start',
     name: '出発地',
     latitude: 35.6580,
     longitude: 139.7016,
     timestamp: new Date(),
     type: LocationType.START
-  },
+  }),
   timestamp: new Date(),
   name: '自宅',
   type: 'start' as const,

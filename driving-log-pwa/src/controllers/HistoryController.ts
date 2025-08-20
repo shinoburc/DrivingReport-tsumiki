@@ -36,24 +36,27 @@ export class HistoryController implements IHistoryController {
    */
   async getHistoryList(options?: HistoryQueryOptions): Promise<HistoryListResult> {
     // 全データを取得
-    let allLogs = await this.storageService.getAll('drivingLogs') || [];
+    let allLogs = await this.storageService.queryDrivingLogs() || [];
+
+    // DrivingLogModelに変換
+    let logModels = allLogs.map(log => DrivingLogModel.fromStorageFormat(log));
 
     // フィルタリング
     if (options?.filters) {
-      allLogs = this.applyFilters(allLogs, options.filters);
+      logModels = this.applyFilters(logModels, options.filters);
     }
 
     // 検索
     if (options?.search) {
-      allLogs = this.applySearch(allLogs, { text: options.search });
+      logModels = this.applySearch(logModels, { text: options.search });
     }
 
     // ソート
     if (options?.sort) {
-      allLogs = this.applySorting(allLogs, options.sort);
+      logModels = this.applySorting(logModels, options.sort);
     } else {
       // デフォルトソート（日付降順）
-      allLogs = this.applySorting(allLogs, { field: 'date', order: 'desc' });
+      logModels = this.applySorting(logModels, { field: 'date', order: 'desc' });
     }
 
     // ページネーション
@@ -61,12 +64,12 @@ export class HistoryController implements IHistoryController {
     const page = options?.pagination?.page || 1;
     const offset = (page - 1) * pageSize;
 
-    const paginatedItems = allLogs.slice(offset, offset + pageSize);
-    const hasMore = offset + pageSize < allLogs.length;
+    const paginatedItems = logModels.slice(offset, offset + pageSize);
+    const hasMore = offset + pageSize < logModels.length;
 
     return {
       items: paginatedItems,
-      totalCount: allLogs.length,
+      totalCount: logModels.length,
       hasMore,
       nextCursor: hasMore ? `${page + 1}` : undefined
     };
@@ -76,8 +79,9 @@ export class HistoryController implements IHistoryController {
    * 履歴の検索
    */
   async searchHistory(query: SearchQuery): Promise<HistoryListResult> {
-    const allLogs = await this.storageService.getAll('drivingLogs') || [];
-    const filteredLogs = this.applySearch(allLogs, query);
+    const allLogs = await this.storageService.queryDrivingLogs() || [];
+    const logModels = allLogs.map(log => DrivingLogModel.fromStorageFormat(log));
+    const filteredLogs = this.applySearch(logModels, query);
 
     // 検索結果を最新順でソート
     const sortedLogs = this.applySorting(filteredLogs, { field: 'date', order: 'desc' });
@@ -97,8 +101,9 @@ export class HistoryController implements IHistoryController {
    * 履歴のフィルタリング
    */
   async filterHistory(filters: HistoryFilters): Promise<HistoryListResult> {
-    const allLogs = await this.storageService.getAll('drivingLogs') || [];
-    const filteredLogs = this.applyFilters(allLogs, filters);
+    const allLogs = await this.storageService.queryDrivingLogs() || [];
+    const logModels = allLogs.map(log => DrivingLogModel.fromStorageFormat(log));
+    const filteredLogs = this.applyFilters(logModels, filters);
 
     // フィルタ結果を最新順でソート
     const sortedLogs = this.applySorting(filteredLogs, { field: 'date', order: 'desc' });
@@ -114,8 +119,9 @@ export class HistoryController implements IHistoryController {
    * 履歴のソート
    */
   async sortHistory(sortOptions: SortOptions): Promise<HistoryListResult> {
-    const allLogs = await this.storageService.getAll('drivingLogs') || [];
-    const sortedLogs = this.applySorting(allLogs, sortOptions);
+    const allLogs = await this.storageService.queryDrivingLogs() || [];
+    const logModels = allLogs.map(log => DrivingLogModel.fromStorageFormat(log));
+    const sortedLogs = this.applySorting(logModels, sortOptions);
 
     return {
       items: sortedLogs,
@@ -128,17 +134,19 @@ export class HistoryController implements IHistoryController {
    * 履歴詳細の取得
    */
   async getHistoryDetail(logId: string): Promise<DrivingLogModel | null> {
-    return await this.storageService.get('drivingLogs', logId);
+    const log = await this.storageService.getDrivingLog(logId);
+    return log ? DrivingLogModel.fromStorageFormat(log) : null;
   }
 
   /**
    * ページネーション用履歴取得
    */
   async getHistoryPage(pageNumber: number, pageSize: number): Promise<HistoryPage> {
-    const allLogs = await this.storageService.getAll('drivingLogs') || [];
+    const allLogs = await this.storageService.queryDrivingLogs() || [];
+    const logModels = allLogs.map(log => DrivingLogModel.fromStorageFormat(log));
     
     // 日付順でソート
-    const sortedLogs = this.applySorting(allLogs, { field: 'date', order: 'desc' });
+    const sortedLogs = this.applySorting(logModels, { field: 'date', order: 'desc' });
 
     const totalItems = sortedLogs.length;
     const totalPages = Math.ceil(totalItems / pageSize);
@@ -160,8 +168,9 @@ export class HistoryController implements IHistoryController {
     const page = parseInt(cursor, 10) || 1;
     const pageSize = this.defaultPageSize;
     
-    const allLogs = await this.storageService.getAll('drivingLogs') || [];
-    const sortedLogs = this.applySorting(allLogs, { field: 'date', order: 'desc' });
+    const allLogs = await this.storageService.queryDrivingLogs() || [];
+    const logModels = allLogs.map(log => DrivingLogModel.fromStorageFormat(log));
+    const sortedLogs = this.applySorting(logModels, { field: 'date', order: 'desc' });
 
     const offset = (page - 1) * pageSize;
     const items = sortedLogs.slice(offset, offset + pageSize);
@@ -179,14 +188,14 @@ export class HistoryController implements IHistoryController {
    * 表示設定の保存
    */
   async saveViewSettings(settings: ViewSettings): Promise<void> {
-    await this.storageService.save('historyViewSettings', settings);
+    localStorage.setItem('historyViewSettings', JSON.stringify(settings));
   }
 
   /**
    * 表示設定の読み込み
    */
   async loadViewSettings(): Promise<ViewSettings> {
-    const settings = await this.storageService.get('historyViewSettings');
+    const settings = JSON.parse(localStorage.getItem('historyViewSettings') || 'null');
     
     // デフォルト設定
     const defaultSettings: ViewSettings = {
@@ -206,47 +215,48 @@ export class HistoryController implements IHistoryController {
   async saveSearchHistory(query: string): Promise<void> {
     if (!query.trim()) return;
 
-    const existingHistory = await this.storageService.get('searchHistory') || [];
+    const existingHistory = JSON.parse(localStorage.getItem('searchHistory') || '[]') || [];
     
     // 重複削除と先頭追加
     const filteredHistory = existingHistory.filter((item: string) => item !== query);
     const updatedHistory = [query, ...filteredHistory].slice(0, this.maxSearchHistory);
 
-    await this.storageService.save('searchHistory', updatedHistory);
+    localStorage.setItem('searchHistory', JSON.stringify(updatedHistory));
   }
 
   /**
    * 検索履歴の取得
    */
   async getSearchHistory(): Promise<string[]> {
-    return await this.storageService.get('searchHistory') || [];
+    return JSON.parse(localStorage.getItem('searchHistory') || '[]') || [];
   }
 
   /**
    * 検索履歴の削除
    */
   async clearSearchHistory(): Promise<void> {
-    await this.storageService.save('searchHistory', []);
+    localStorage.setItem('searchHistory', JSON.stringify([]));
   }
 
   /**
    * 統計情報の取得
    */
   async getStatistics(period?: DateRange): Promise<HistoryStatistics> {
-    let allLogs = await this.storageService.getAll('drivingLogs') || [];
+    let allLogs = await this.storageService.queryDrivingLogs() || [];
+    let logModels = allLogs.map(log => DrivingLogModel.fromStorageFormat(log));
 
     // 期間フィルタリング
     if (period) {
-      allLogs = allLogs.filter(log => {
+      logModels = logModels.filter(log => {
         const logDate = new Date(log.date);
         return logDate >= period.startDate && logDate <= period.endDate;
       });
     }
 
     // 完了済みのみを対象
-    const completedLogs = allLogs.filter(log => log.status === DrivingLogStatus.COMPLETED);
+    const completedLogs = logModels.filter(log => log.status === DrivingLogStatus.COMPLETED);
 
-    const totalRecords = allLogs.length;
+    const totalRecords = logModels.length;
     const totalDistance = completedLogs.reduce((sum, log) => sum + (log.totalDistance || 0), 0);
     const totalDuration = completedLogs.reduce((sum, log) => sum + (log.duration || 0), 0);
 
@@ -260,7 +270,7 @@ export class HistoryController implements IHistoryController {
       [DrivingLogStatus.CANCELLED]: 0
     };
 
-    allLogs.forEach(log => {
+    logModels.forEach(log => {
       statusCounts[log.status]++;
     });
 

@@ -40,7 +40,8 @@ export class ServiceWorkerManager {
 
       return registration;
     } catch (error) {
-      throw new Error(`Registration failed: ${error.message}`);
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      throw new Error(`Registration failed: ${errorMessage}`);
     }
   }
 
@@ -83,7 +84,7 @@ export class ServiceWorkerManager {
     await this.initializeCaches();
   }
 
-  async cleanupOldCaches(currentVersion: string): Promise<void> {
+  async cleanupOldCaches(_currentVersion: string): Promise<void> {
     const cacheNames = await caches.keys();
     const currentCacheNames = Object.values(this.config.cacheNames);
     
@@ -116,7 +117,8 @@ export class ServiceWorkerManager {
 
   async getCachedResponse(url: string): Promise<Response | null> {
     try {
-      return await caches.match(url);
+      const response = await caches.match(url);
+      return response || null;
     } catch (error) {
       console.error('Cache access error:', error);
       return null;
@@ -157,7 +159,7 @@ export class ServiceWorkerManager {
       return response;
     } catch (error) {
       clearTimeout(timeoutId);
-      if (error.name === 'AbortError') {
+      if (error instanceof Error && error.name === 'AbortError') {
         throw new Error('Request timeout');
       }
       throw error;

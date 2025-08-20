@@ -9,20 +9,48 @@ import { AppError, ErrorCode } from '../../types';
  */
 export class SettingsModel extends BaseModel implements AppSettings {
   public readonly language: 'ja' | 'en';
-  public readonly gpsTimeout: number;
-  public readonly autoExportEnabled: boolean;
-  public readonly exportFormat: ExportFormat;
-  public readonly favoriteLocations: FavoriteLocation[];
   public readonly theme: 'light' | 'dark' | 'auto';
+  public readonly gpsTimeout: number;
+  public readonly gpsAccuracyThreshold: number;
+  public readonly exportFormat: ExportFormat;
+  public readonly defaultExportPeriod: number;
+  public readonly exportPrivacyLevel: 'full' | 'approximate' | 'minimal';
+  public readonly autoExportEnabled: boolean;
+  public readonly autoExportFrequency: 'weekly' | 'monthly' | 'manual';
+  public readonly favoriteLocations: FavoriteLocation[];
+  public readonly notificationsEnabled: boolean;
+  public readonly offlineModeEnabled: boolean;
+  public readonly autoClearDataEnabled: boolean;
+  public readonly compactMode?: boolean;
+  public readonly showTutorial?: boolean;
+  public readonly firstLaunchDate?: Date;
+  public readonly appVersion?: string;
+  public readonly lastBackupDate?: Date;
+  public readonly driverName?: string;
+  public readonly vehicleInfo?: any;
 
   private constructor(data: AppSettings) {
     super();
     this.language = data.language;
-    this.gpsTimeout = data.gpsTimeout;
-    this.autoExportEnabled = data.autoExportEnabled;
-    this.exportFormat = data.exportFormat;
-    this.favoriteLocations = Object.freeze([...data.favoriteLocations]);
     this.theme = data.theme;
+    this.gpsTimeout = data.gpsTimeout;
+    this.gpsAccuracyThreshold = data.gpsAccuracyThreshold;
+    this.exportFormat = data.exportFormat;
+    this.defaultExportPeriod = data.defaultExportPeriod;
+    this.exportPrivacyLevel = data.exportPrivacyLevel;
+    this.autoExportEnabled = data.autoExportEnabled;
+    this.autoExportFrequency = data.autoExportFrequency;
+    this.favoriteLocations = [...data.favoriteLocations];
+    this.notificationsEnabled = data.notificationsEnabled;
+    this.offlineModeEnabled = data.offlineModeEnabled;
+    this.autoClearDataEnabled = data.autoClearDataEnabled;
+    this.compactMode = data.compactMode;
+    this.showTutorial = data.showTutorial;
+    this.firstLaunchDate = data.firstLaunchDate;
+    this.appVersion = data.appVersion;
+    this.lastBackupDate = data.lastBackupDate;
+    this.driverName = data.driverName;
+    this.vehicleInfo = data.vehicleInfo;
 
     // 不変オブジェクトとして固定
     this.freeze();
@@ -34,11 +62,18 @@ export class SettingsModel extends BaseModel implements AppSettings {
   static createDefault(): SettingsModel {
     const defaultSettings: AppSettings = {
       language: 'ja',
+      theme: 'auto',
       gpsTimeout: 10,
-      autoExportEnabled: false,
+      gpsAccuracyThreshold: 50,
       exportFormat: ExportFormat.CSV,
+      defaultExportPeriod: 30,
+      exportPrivacyLevel: 'full',
+      autoExportEnabled: false,
+      autoExportFrequency: 'monthly',
       favoriteLocations: [],
-      theme: 'auto'
+      notificationsEnabled: true,
+      offlineModeEnabled: true,
+      autoClearDataEnabled: false
     };
 
     return new SettingsModel(defaultSettings);
@@ -52,11 +87,25 @@ export class SettingsModel extends BaseModel implements AppSettings {
     const defaultSettings = SettingsModel.createDefault();
     const settingsData: AppSettings = {
       language: data.language || defaultSettings.language,
+      theme: data.theme || defaultSettings.theme,
       gpsTimeout: data.gpsTimeout !== undefined ? data.gpsTimeout : defaultSettings.gpsTimeout,
-      autoExportEnabled: data.autoExportEnabled !== undefined ? data.autoExportEnabled : defaultSettings.autoExportEnabled,
+      gpsAccuracyThreshold: data.gpsAccuracyThreshold !== undefined ? data.gpsAccuracyThreshold : defaultSettings.gpsAccuracyThreshold,
       exportFormat: data.exportFormat || defaultSettings.exportFormat,
+      defaultExportPeriod: data.defaultExportPeriod !== undefined ? data.defaultExportPeriod : defaultSettings.defaultExportPeriod,
+      exportPrivacyLevel: data.exportPrivacyLevel || defaultSettings.exportPrivacyLevel,
+      autoExportEnabled: data.autoExportEnabled !== undefined ? data.autoExportEnabled : defaultSettings.autoExportEnabled,
+      autoExportFrequency: data.autoExportFrequency || defaultSettings.autoExportFrequency,
       favoriteLocations: data.favoriteLocations || defaultSettings.favoriteLocations,
-      theme: data.theme || defaultSettings.theme
+      notificationsEnabled: data.notificationsEnabled !== undefined ? data.notificationsEnabled : defaultSettings.notificationsEnabled,
+      offlineModeEnabled: data.offlineModeEnabled !== undefined ? data.offlineModeEnabled : defaultSettings.offlineModeEnabled,
+      autoClearDataEnabled: data.autoClearDataEnabled !== undefined ? data.autoClearDataEnabled : defaultSettings.autoClearDataEnabled,
+      compactMode: data.compactMode,
+      showTutorial: data.showTutorial,
+      firstLaunchDate: data.firstLaunchDate,
+      appVersion: data.appVersion,
+      lastBackupDate: data.lastBackupDate,
+      driverName: data.driverName,
+      vehicleInfo: data.vehicleInfo
     };
 
     // バリデーション
@@ -78,11 +127,25 @@ export class SettingsModel extends BaseModel implements AppSettings {
   update(updates: Partial<AppSettings>): SettingsModel {
     const updatedData: AppSettings = {
       language: this.updateProperty(updates.language, this.language),
+      theme: this.updateProperty(updates.theme, this.theme),
       gpsTimeout: this.updateProperty(updates.gpsTimeout, this.gpsTimeout),
-      autoExportEnabled: this.updateProperty(updates.autoExportEnabled, this.autoExportEnabled),
+      gpsAccuracyThreshold: this.updateProperty(updates.gpsAccuracyThreshold, this.gpsAccuracyThreshold),
       exportFormat: this.updateProperty(updates.exportFormat, this.exportFormat),
+      defaultExportPeriod: this.updateProperty(updates.defaultExportPeriod, this.defaultExportPeriod),
+      exportPrivacyLevel: this.updateProperty(updates.exportPrivacyLevel, this.exportPrivacyLevel),
+      autoExportEnabled: this.updateProperty(updates.autoExportEnabled, this.autoExportEnabled),
+      autoExportFrequency: this.updateProperty(updates.autoExportFrequency, this.autoExportFrequency),
       favoriteLocations: this.updateProperty(updates.favoriteLocations, this.favoriteLocations),
-      theme: this.updateProperty(updates.theme, this.theme)
+      notificationsEnabled: this.updateProperty(updates.notificationsEnabled, this.notificationsEnabled),
+      offlineModeEnabled: this.updateProperty(updates.offlineModeEnabled, this.offlineModeEnabled),
+      autoClearDataEnabled: this.updateProperty(updates.autoClearDataEnabled, this.autoClearDataEnabled),
+      compactMode: this.updateProperty(updates.compactMode, this.compactMode),
+      showTutorial: this.updateProperty(updates.showTutorial, this.showTutorial),
+      firstLaunchDate: this.updateProperty(updates.firstLaunchDate, this.firstLaunchDate),
+      appVersion: this.updateProperty(updates.appVersion, this.appVersion),
+      lastBackupDate: this.updateProperty(updates.lastBackupDate, this.lastBackupDate),
+      driverName: this.updateProperty(updates.driverName, this.driverName),
+      vehicleInfo: this.updateProperty(updates.vehicleInfo, this.vehicleInfo)
     };
 
     return SettingsModel.create(updatedData);
@@ -123,7 +186,7 @@ export class SettingsModel extends BaseModel implements AppSettings {
     return this.update({ favoriteLocations: newFavorites });
   }
 
-  validate(): ValidationResult {
+  override validate(): ValidationResult {
     return ModelValidator.validateSettings(this);
   }
 
@@ -138,7 +201,7 @@ export class SettingsModel extends BaseModel implements AppSettings {
     };
   }
 
-  static fromJSON(data: Record<string, any>): SettingsModel {
+  static override fromJSON(data: Record<string, any>): SettingsModel {
     return SettingsModel.create({
       language: data.language,
       gpsTimeout: data.gpsTimeout,
